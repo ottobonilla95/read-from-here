@@ -55,7 +55,14 @@ $('delete-key').addEventListener('click',async()=>{
   $('api-key').value='';$('key-status').textContent='Key removed.';await refreshVoices();
 });
 
-$('settings-close').addEventListener('click',async()=>{finishPreview();const window=await chrome.windows.getCurrent();await chrome.windows.remove(window.id);});
+$('settings-close').addEventListener('click',async()=>{
+  finishPreview();
+  try{
+    const {id:windowId}=await chrome.windows.getCurrent();
+    if(chrome.sidePanel.close)await chrome.sidePanel.close({windowId});
+    else {await chrome.sidePanel.setOptions({enabled:false});await chrome.sidePanel.setOptions({enabled:true});}
+  }catch(error){notice(error.message,true);}
+});
 $('preview-voice').addEventListener('click',async()=>{if(!voiceList.length)return;if(previewActive){finishPreview();return;}previewActive=true;$('preview-voice').textContent='Stop voice preview';notice('');const result=await send('preview');if(result?.error){finishPreview();notice(result.error,true);}});
 chrome.runtime.onMessage.addListener(message=>{if(message.target!=='settings')return;if(message.action==='preview-state'&&(message.phase==='ended'||message.phase==='error')){previewActive=false;$('preview-voice').textContent='Listen to this voice';if(message.error)notice(message.error,true);}if(message.action==='speed-changed')settings.speed=message.speed;});
 addEventListener('pagehide',()=>{void send('stop-preview');});

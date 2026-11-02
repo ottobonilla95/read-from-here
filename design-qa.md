@@ -2,6 +2,16 @@
 
 final result: passed
 
+## v0.3.2 — sidebar settings and smaller controls
+
+The user requested settings in the side again, smaller buttons, and a more transparent container. Current toolbar: 240 × 48 CSS px, 32px play/pause, 24px speed buttons, 14px speed text, 50%-opaque white surface and 10px backdrop blur. All labels/icons remain fully opaque and all four controls remain visible at 280px viewport width. This user direction supersedes the original mockup's larger opaque container.
+
+Latest evidence remains `artifacts/toolbar-desktop.png` (1030 × 733, deviceScaleFactor 1), `artifacts/toolbar-narrow.png` (280 × 650), and full/focused comparisons listed below. Both combined comparisons were opened again; no actionable P0/P1/P2 issues remain. The official icons stay sharp and the speed remains legible. The settings form was captured at 360 CSS px wide as `artifacts/settings.png`; controls wrap within the sidebar width without overflow. App copy and palette are preserved.
+
+Settings now uses the native `sidePanel` API and `settings.html` manifest path. The real API open call succeeds in integration checks without creating a browser window. Headless Chrome does not draw native browser sidebar chrome, so the same private form is exercised in an extension tab. Tests also close settings while audio is playing and verify playback continues and the browser window survives. The complete browser suite passes with no uncaught page errors.
+
+Native verification: reloaded version 0.3.2 in the personal `otto` Chrome profile. The public article retains the floating controls while Voice settings appears as a separate native sidebar document, with Chrome's Close side panel control. Done closed only the sidebar; opening it again worked. Left the sidebar open for the user. No live paid provider request was made.
+
 ## v0.3.1 — requested refinement
 
 The user requested a smaller strip and a partially transparent background. The latest browser capture and README image show 280 × 56px (previously 360 × 72px), a 40px play button, 16px speed value, 78%-opaque white surface, 12px backdrop blur, and an 18px bottom offset. Text and icons remain opaque. Reduced-transparency preferences get a solid white surface. These differences from the original mockup are intentional user-directed changes.

@@ -28,4 +28,4 @@ Requested: click-to-start, selectable voices, API-key settings, play/pause, spee
 
 ## Selected interface
 
-A floating toolbar with play/pause, slower, faster, and settings. Highlight spoken text directly on the page. No side panel, transcript, source heading, selection button, reading queue, or progress display. Settings holds voices and API keys in a separate extension window.
+A floating toolbar with play/pause, slower, faster, and settings. Highlight spoken text directly on the page. No transcript, source heading, selection button, reading queue, or progress display. Settings holds voices and API keys in Chrome’s sidebar.

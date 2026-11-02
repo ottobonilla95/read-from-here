@@ -3,6 +3,8 @@ const engineURL = chrome.runtime.getURL('engine.html');
 const settingsURL = chrome.runtime.getURL('settings.html');
 const prepareStorage = () => Promise.all(['local','session'].map(area => chrome.storage[area].setAccessLevel({accessLevel:'TRUSTED_CONTEXTS'})));
 prepareStorage().catch(() => {});
+// Keep the extension icon dedicated to toggling the floating player.
+chrome.sidePanel.setPanelBehavior({openPanelOnActionClick:false}).catch(()=>{});
 // Retire the old selection menu when upgrading to the floating reader.
 chrome.runtime.onInstalled.addListener(() => {prepareStorage().catch(()=>{});chrome.contextMenus?.removeAll();});
 let creating;
@@ -47,15 +49,13 @@ async function activate(tab){
   }
 }
 chrome.action.onClicked.addListener(tab=>{void activate(tab);});
-async function openSettings(){
-  const contexts=await chrome.runtime.getContexts({documentUrls:[settingsURL]});
-  const existing=contexts.find(context=>context.windowId>=0);
-  if(existing){await chrome.windows.update(existing.windowId,{focused:true});return;}
-  await chrome.windows.create({url:settingsURL,type:'popup',width:420,height:740,focused:true});
-}
 async function handle(message,sender){
   const internal=sender.url===engineURL;
   const settingsPage=sender.url===settingsURL;
+  // Open directly from the content-script click so Chrome retains its user gesture.
+  if(message.action==='settings'&&sender.tab?.id!=null&&sender.frameId===0){
+    await chrome.sidePanel.open({windowId:sender.tab.windowId});return {ok:true};
+  }
   if(internal){
     if(message.action==='get-key'){
       const [local,session]=await Promise.all([chrome.storage.local.get('keys'),chrome.storage.session.get('keys')]);
@@ -92,7 +92,6 @@ async function handle(message,sender){
     if(message.action==='toggle')return command('toggle');
     if(message.action==='jump')return command('jump',{page:message.page});
     if(message.action==='speed')return command('speed',{delta:message.delta===-1?-0.25:0.25});
-    if(message.action==='settings'){await openSettings();return {ok:true};}
     if(message.action==='close'){await closeReader(tabId);return {ok:true};}
   }
   return {ok:false,error:'This action is not available in this context.'};
@@ -115,3 +114,5 @@ chrome.tabs.onUpdated.addListener((tabId,change,tab)=>{
     if(!next||next.split('#')[0]!==readerUrl?.split('#')[0])await closeReader(tabId);
   })();
 });
+
+chrome.sidePanel.onClosed?.addListener(()=>{void (async()=>{if(await hasEngine())await command('stop-preview');})().catch(()=>{});});

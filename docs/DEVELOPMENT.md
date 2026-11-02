@@ -6,7 +6,7 @@ The runtime has no framework, bundler, remote scripts, or application server. Ch
 
 | File | Responsibility |
 | --- | --- |
-| `background.js` | Activation, source-tab lifecycle, trusted storage, native speech, settings window, and message routing |
+| `background.js` | Activation, source-tab lifecycle, trusted storage, native speech, settings sidebar, and message routing |
 | `content.js` | Shadow DOM floating toolbar, semantic extraction, direct clicks, and CSS text highlighting |
 | `engine.html` / `engine.js` | Private offscreen audio context, reading queue, state, previews, and native-word routing |
 | `settings.html` / `settings.js` / `settings.css` | Provider, model, voice, preview, and API-key controls |
@@ -25,13 +25,13 @@ A toolbar click grants `activeTab` and injects the content script. It mounts a s
 
 The page sends playback commands, but receives no keys. The worker validates the source tab and frame before routing commands. A private offscreen document creates and plays speech Blob URLs. It uses the documented `BLOBS` reason; the worker closes it when the reader is dismissed. It calls extension APIs through runtime messaging, because offscreen documents support only `chrome.runtime`.
 
-API-key retrieval and native-speech commands are limited to the internal audio document. Direct engine commands are limited to the service worker, excluding tab/document senders. The settings window is a private extension page, with session/local storage limited to trusted extension contexts. No extension HTML is web-accessible. Only the toolbar font and icon files are exposed as page assets.
+API-key retrieval and native-speech commands are limited to the internal audio document. Direct engine commands are limited to the service worker, excluding tab/document senders. The settings sidebar is a private extension page, with session/local storage limited to trusted extension contexts. No extension HTML is web-accessible. Only the toolbar font and icon files are exposed as page assets.
 
-The old `sidePanel` and `contextMenus` permissions are removed; `offscreen` replaces the panel-based audio context. Provider host permissions remain limited to OpenAI, ElevenLabs, and Google. No permanent article-host permission is requested.
+The `sidePanel` permission hosts settings only. `offscreen` keeps playback independent of whether settings are open. The old `contextMenus` permission remains removed. Provider host permissions remain limited to OpenAI, ElevenLabs, and Google. No permanent article-host permission is requested.
 
 The page uses CSS Custom Highlights for the current passage. Native word events narrow the highlight to the current sentence and word. Cloud providers here do not return alignment, so their highlights remain at passage level; there is no simulated word timing. An overlay is a fallback when CSS Highlights are unavailable.
 
-Chrome documentation: [offscreen API and Blob reason](https://developer.chrome.com/docs/extensions/reference/api/offscreen).
+Chrome documentation: [offscreen API and Blob reason](https://developer.chrome.com/docs/extensions/reference/api/offscreen), [native side panel](https://developer.chrome.com/docs/extensions/reference/api/sidePanel).
 
 ## Develop
 
@@ -52,6 +52,8 @@ After changing runtime files, reload the extension at `chrome://extensions`, the
 Core tests cover Unicode-safe splitting, anchors, provider request formats, missing keys, quota handling, voice pagination, cancellation, stale generation, caching, speed, and native speech events.
 
 The Chromium suite loads a temporary copy of the unchanged extension and uses the toolbar action with the shipped `activeTab` grant. It checks the four visible toolbar controls, extraction, direct paragraph/photo jumps, links/forms/selection, speed persistence, cloud pause/resume, playing/paused jumps, previews, key storage/removal, provider voices, page credential isolation, cleanup, strict page CSP, narrow viewports, and uncaught errors.
+
+Headless Chrome accepts the real `sidePanel.open` request but does not render the native sidebar. The suite checks its successful API call, manifest path, unchanged browser window count, and Done preserving the browser window. It exercises settings fields in a private extension tab; native sidebar presentation is verified in personal Chrome.
 
 Offscreen documents are separate Chromium targets, so the test intercepts their speech requests with CDP Fetch before playback. Settings-page voice requests are intercepted through page routing. Provider fixtures do not establish live compatibility, account access, latency, or voice quality. Native word-event rendering can be exercised with a deterministic speech fixture; actual voice support varies by device.
 

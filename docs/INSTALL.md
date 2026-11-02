@@ -24,7 +24,7 @@ Click the extension icon again to close the toolbar and stop listening. Navigati
 
 ## Voices and API keys
 
-The toolbar's settings icon opens a small voice-settings window. Browser voices work without a key. For OpenAI, ElevenLabs, or Gemini, choose the provider, paste your own key, select **Save key**, then choose a voice and model.
+The toolbar's settings icon opens voice settings in Chrome’s sidebar. Browser voices work without a key. For OpenAI, ElevenLabs, or Gemini, choose the provider, paste your own key, select **Save key**, then choose a voice and model.
 
 Keys are kept for the browser session by default. **Remember on this device** saves a key locally; it is not encrypted or browser-synced. **Remove key** clears both locations. Cloud playback and previews use your provider account and can cost money.
 

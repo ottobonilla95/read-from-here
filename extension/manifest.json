@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Read from here",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Click any paragraph and listen. A simple floating player with speed controls and your choice of voice.",
   "minimum_chrome_version": "116",
   "permissions": [
@@ -9,7 +9,8 @@
     "scripting",
     "storage",
     "tts",
-    "offscreen"
+    "offscreen",
+    "sidePanel"
   ],
   "host_permissions": [
     "https://api.openai.com/*",
@@ -48,5 +49,8 @@
         "https://*/*"
       ]
     }
-  ]
+  ],
+  "side_panel": {
+    "default_path": "settings.html"
+  }
 }

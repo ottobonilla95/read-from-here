@@ -51,6 +51,7 @@ try{
     await session.call('Fetch.enable',{patterns:[{urlPattern:'https://api.openai.com/*'},{urlPattern:'https://api.elevenlabs.io/*'},{urlPattern:'https://generativelanguage.googleapis.com/*'}]});
   }
   async function activate(page){
+    await page.bringToFront();
     const targets=await cdp.send('Target.getTargets',{filter:[{type:'tab',exclude:false}]});
     const target=targets.targetInfos.find(t=>t.url===page.url());assert.ok(target);
     await cdp.send('Extensions.triggerAction',{id,targetId:target.targetId});
@@ -80,11 +81,24 @@ try{
   await ui.getByRole('button',{name:'Faster',exact:true}).click();await until(async()=>(await ui.locator('#speed').textContent())==='1.25×','Speed did not update');
   assert.equal((await worker.evaluate(async()=>(await chrome.storage.local.get('settings')).settings)).speed,1.25);
   await ui.getByRole('button',{name:'Slower',exact:true}).click();
-  const openingSettings=context.waitForEvent('page');
+  const windowCount=await worker.evaluate(async()=>(await chrome.windows.getAll()).length);
+  await worker.evaluate(()=>{
+    const open=chrome.sidePanel.open.bind(chrome.sidePanel);
+    globalThis.settingsOpen=null;
+    chrome.sidePanel.open=async options=>{
+      try{await open(options);globalThis.settingsOpen={options,ok:true};}
+      catch(error){globalThis.settingsOpen={options,error:error.message};throw error;}
+    };
+  });
   await ui.getByRole('button',{name:'Voice settings'}).click();
-  const settings=await openingSettings;
-  const prefs=settings||context.pages().find(p=>p.url().includes('settings.html'));assert.ok(prefs);
-  await prefs.waitForLoadState();
+  await until(()=>worker.evaluate(()=>Boolean(globalThis.settingsOpen)),'Sidebar open request missing');
+  const opened=await worker.evaluate(()=>globalThis.settingsOpen);assert.equal(opened.ok,true,opened.error);
+  assert.equal(typeof opened.options.windowId,'number');
+  assert.equal(await worker.evaluate(async()=>(await chrome.windows.getAll()).length),windowCount,'Settings opened a separate window');
+  assert.equal(await worker.evaluate(async()=>(await chrome.sidePanel.getOptions({})).path),'settings.html');
+  // Headless Chrome accepts sidePanel.open but does not render native browser chrome.
+  // Exercise the unchanged private settings form in a tab; verify the native sidebar in personal Chrome.
+  const prefs=await context.newPage();await prefs.setViewportSize({width:360,height:780});await prefs.goto(`chrome-extension://${id}/settings.html`);
   await mockEngine();
   await prefs.locator('#provider').selectOption('openai');await prefs.locator('#voice').selectOption('marin');
   await prefs.locator('#api-key').fill('test-fixture-key');await prefs.locator('#save-key').click();
@@ -120,6 +134,12 @@ try{
   await ui.getByRole('button',{name:'Play',exact:true}).click();await until(async()=>(await ui.locator('#status').textContent())==='Listening','Gemini did not play');
   await ui.getByRole('button',{name:'Pause',exact:true}).click();
   await prefs.screenshot({path:path.join(root,'artifacts/settings.png'),fullPage:true});
+  await ui.getByRole('button',{name:'Play',exact:true}).click();
+  await until(async()=>(await ui.locator('#status').textContent())==='Listening','Reader did not resume before closing settings');
+  await prefs.locator('#settings-close').click();
+  assert.equal(await worker.evaluate(async()=>(await chrome.windows.getAll()).length),windowCount,'Done closed the browser window');
+  assert.equal(await ui.locator('#status').textContent(),'Listening','Closing settings stopped the reader');
+  await ui.getByRole('button',{name:'Pause',exact:true}).click();
   // Only internal extension pages can retrieve credentials or control the audio engine directly.
   const denied=await worker.evaluate(async()=>{
     const tab=(await chrome.tabs.query({})).find(t=>t.url?.startsWith('http://127.0.0.1:'));

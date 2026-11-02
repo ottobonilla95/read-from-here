@@ -24,9 +24,9 @@ Click the extension icon again to close the toolbar and stop listening. Navigati
 - **Slower and faster** in steps of 0.25×, from 0.5× to 3×.
 - **Click any paragraph** to move your place. Playback continues if playing, and stays paused if paused. Clicking a photo moves to the next caption or passage; it does not read words inside the image.
 - **Follow the text on the page.** Browser voices that supply word events highlight the current word and sentence. Cloud voices highlight the current passage; they do not supply word timing in this version.
-- **Settings** holds voice, model, API key, voice preview, and automatic scrolling options. It opens in a separate small window, and can close while listening continues.
+- **Settings** holds voice, model, API key, voice preview, and automatic scrolling options. It opens in Chrome’s sidebar, and can close while listening continues.
 
-Links, buttons, forms, and dragging to select text keep their usual behavior. The toolbar uses its own styles so the article's layout stays intact. There is no transcript, reading queue, or side panel.
+Links, buttons, forms, and dragging to select text keep their usual behavior. The toolbar uses its own styles so the article's layout stays intact. There is no transcript or reading queue. The sidebar is only for settings.
 
 ## Pick a voice
 
