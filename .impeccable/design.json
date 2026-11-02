@@ -1,0 +1,368 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-02T17:14:07.316814Z",
+  "title": "Design System: Read from here",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Cool Paper",
+        "tonalRamp": [
+          "oklch(15.00% 0.00573 264.53)",
+          "oklch(26.43% 0.00573 264.53)",
+          "oklch(37.86% 0.00573 264.53)",
+          "oklch(49.29% 0.00573 264.53)",
+          "oklch(60.71% 0.00573 264.53)",
+          "oklch(72.14% 0.00573 264.53)",
+          "oklch(83.57% 0.00573 264.53)",
+          "oklch(95.00% 0.00573 264.53)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "White Surface",
+        "tonalRamp": [
+          "oklch(15.00% 0.00000 89.88)",
+          "oklch(26.43% 0.00000 89.88)",
+          "oklch(37.86% 0.00000 89.88)",
+          "oklch(49.29% 0.00000 89.88)",
+          "oklch(60.71% 0.00000 89.88)",
+          "oklch(72.14% 0.00000 89.88)",
+          "oklch(83.57% 0.00000 89.88)",
+          "oklch(95.00% 0.00000 89.88)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Navy Ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.05970 262.00)",
+          "oklch(26.43% 0.05970 262.00)",
+          "oklch(37.86% 0.05970 262.00)",
+          "oklch(49.29% 0.05970 262.00)",
+          "oklch(60.71% 0.05970 262.00)",
+          "oklch(72.14% 0.05970 262.00)",
+          "oklch(83.57% 0.05970 262.00)",
+          "oklch(95.00% 0.05970 262.00)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Quiet Slate",
+        "tonalRamp": [
+          "oklch(15.00% 0.04430 260.55)",
+          "oklch(26.43% 0.04430 260.55)",
+          "oklch(37.86% 0.04430 260.55)",
+          "oklch(49.29% 0.04430 260.55)",
+          "oklch(60.71% 0.04430 260.55)",
+          "oklch(72.14% 0.04430 260.55)",
+          "oklch(83.57% 0.04430 260.55)",
+          "oklch(95.00% 0.04430 260.55)"
+        ]
+      },
+      "blue": {
+        "role": "primary",
+        "displayName": "Cobalt",
+        "tonalRamp": [
+          "oklch(15.00% 0.21023 264.41)",
+          "oklch(26.43% 0.21023 264.41)",
+          "oklch(37.86% 0.21023 264.41)",
+          "oklch(49.29% 0.21023 264.41)",
+          "oklch(60.71% 0.21023 264.41)",
+          "oklch(72.14% 0.21023 264.41)",
+          "oklch(83.57% 0.21023 264.41)",
+          "oklch(95.00% 0.21023 264.41)"
+        ]
+      },
+      "selection": {
+        "role": "primary",
+        "displayName": "Pale Blue",
+        "tonalRamp": [
+          "oklch(15.00% 0.02543 268.85)",
+          "oklch(26.43% 0.02543 268.85)",
+          "oklch(37.86% 0.02543 268.85)",
+          "oklch(49.29% 0.02543 268.85)",
+          "oklch(60.71% 0.02543 268.85)",
+          "oklch(72.14% 0.02543 268.85)",
+          "oklch(83.57% 0.02543 268.85)",
+          "oklch(95.00% 0.02543 268.85)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Cool Line",
+        "tonalRamp": [
+          "oklch(15.00% 0.01800 261.34)",
+          "oklch(26.43% 0.01800 261.34)",
+          "oklch(37.86% 0.01800 261.34)",
+          "oklch(49.29% 0.01800 261.34)",
+          "oklch(60.71% 0.01800 261.34)",
+          "oklch(72.14% 0.01800 261.34)",
+          "oklch(83.57% 0.01800 261.34)",
+          "oklch(95.00% 0.01800 261.34)"
+        ]
+      },
+      "field-border": {
+        "role": "neutral",
+        "displayName": "Field Outline",
+        "tonalRamp": [
+          "oklch(15.00% 0.03108 260.70)",
+          "oklch(26.43% 0.03108 260.70)",
+          "oklch(37.86% 0.03108 260.70)",
+          "oklch(49.29% 0.03108 260.70)",
+          "oklch(60.71% 0.03108 260.70)",
+          "oklch(72.14% 0.03108 260.70)",
+          "oklch(83.57% 0.03108 260.70)",
+          "oklch(95.00% 0.03108 260.70)"
+        ]
+      },
+      "pick-border": {
+        "role": "primary",
+        "displayName": "Pick Outline",
+        "tonalRamp": [
+          "oklch(15.00% 0.06749 266.97)",
+          "oklch(26.43% 0.06749 266.97)",
+          "oklch(37.86% 0.06749 266.97)",
+          "oklch(49.29% 0.06749 266.97)",
+          "oklch(60.71% 0.06749 266.97)",
+          "oklch(72.14% 0.06749 266.97)",
+          "oklch(83.57% 0.06749 266.97)",
+          "oklch(95.00% 0.06749 266.97)"
+        ]
+      },
+      "play-hover": {
+        "role": "primary",
+        "displayName": "Cobalt Shade",
+        "tonalRamp": [
+          "oklch(15.00% 0.18505 264.10)",
+          "oklch(26.43% 0.18505 264.10)",
+          "oklch(37.86% 0.18505 264.10)",
+          "oklch(49.29% 0.18505 264.10)",
+          "oklch(60.71% 0.18505 264.10)",
+          "oklch(72.14% 0.18505 264.10)",
+          "oklch(83.57% 0.18505 264.10)",
+          "oklch(95.00% 0.18505 264.10)"
+        ]
+      },
+      "passage-hover": {
+        "role": "neutral",
+        "displayName": "Passage Hover",
+        "tonalRamp": [
+          "oklch(15.00% 0.01155 264.51)",
+          "oklch(26.43% 0.01155 264.51)",
+          "oklch(37.86% 0.01155 264.51)",
+          "oklch(49.29% 0.01155 264.51)",
+          "oklch(60.71% 0.01155 264.51)",
+          "oklch(72.14% 0.01155 264.51)",
+          "oklch(83.57% 0.01155 264.51)",
+          "oklch(95.00% 0.01155 264.51)"
+        ]
+      },
+      "notice-bg": {
+        "role": "neutral",
+        "displayName": "Information Background",
+        "tonalRamp": [
+          "oklch(15.00% 0.02248 269.44)",
+          "oklch(26.43% 0.02248 269.44)",
+          "oklch(37.86% 0.02248 269.44)",
+          "oklch(49.29% 0.02248 269.44)",
+          "oklch(60.71% 0.02248 269.44)",
+          "oklch(72.14% 0.02248 269.44)",
+          "oklch(83.57% 0.02248 269.44)",
+          "oklch(95.00% 0.02248 269.44)"
+        ]
+      },
+      "notice-ink": {
+        "role": "neutral",
+        "displayName": "Information Ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.14343 264.85)",
+          "oklch(26.43% 0.14343 264.85)",
+          "oklch(37.86% 0.14343 264.85)",
+          "oklch(49.29% 0.14343 264.85)",
+          "oklch(60.71% 0.14343 264.85)",
+          "oklch(72.14% 0.14343 264.85)",
+          "oklch(83.57% 0.14343 264.85)",
+          "oklch(95.00% 0.14343 264.85)"
+        ]
+      },
+      "error-bg": {
+        "role": "neutral",
+        "displayName": "Error Background",
+        "tonalRamp": [
+          "oklch(15.00% 0.02023 2.28)",
+          "oklch(26.43% 0.02023 2.28)",
+          "oklch(37.86% 0.02023 2.28)",
+          "oklch(49.29% 0.02023 2.28)",
+          "oklch(60.71% 0.02023 2.28)",
+          "oklch(72.14% 0.02023 2.28)",
+          "oklch(83.57% 0.02023 2.28)",
+          "oklch(95.00% 0.02023 2.28)"
+        ]
+      },
+      "error-ink": {
+        "role": "neutral",
+        "displayName": "Error Ink",
+        "tonalRamp": [
+          "oklch(15.00% 0.14525 11.88)",
+          "oklch(26.43% 0.14525 11.88)",
+          "oklch(37.86% 0.14525 11.88)",
+          "oklch(49.29% 0.14525 11.88)",
+          "oklch(60.71% 0.14525 11.88)",
+          "oklch(72.14% 0.14525 11.88)",
+          "oklch(83.57% 0.14525 11.88)",
+          "oklch(95.00% 0.14525 11.88)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "title": {
+        "displayName": "Title",
+        "purpose": "Source title."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Settings and transcript headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Continuous transcript passages."
+      },
+      "supporting": {
+        "displayName": "Supporting",
+        "purpose": "Source guidance, empty state and field text."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Metadata, speed and secondary actions."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Status, time estimates, hints and footer."
+      },
+      "action": {
+        "displayName": "Action",
+        "purpose": "Play label and wordmark."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "control-colors",
+        "value": "background-color .15s ease, color .15s ease",
+        "purpose": "Background and text state changes on buttons, inputs and selects; disabled under prefers-reduced-motion: reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "narrow-panel",
+        "value": "300px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Play",
+      "kind": "button",
+      "refersTo": "button-play",
+      "description": "Primary playback action, enabled after text is loaded.",
+      "html": "<button class=\"ds-play\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m9 5 11 7-11 7V5Z\"/></svg><span>Play</span></button>",
+      "css": ".ds-play{font-family:Atkinson,system-ui,sans-serif;transition:background-color .15s ease,color .15s ease;display:flex;align-items:center;justify-content:center;gap:8px;min-width:123px;height:53px;padding:0 20px;color:var(--surface,#fff);background:var(--blue,#2455da);border:0;border-radius:28px;font-weight:700;font-size:17px;line-height:1.5;cursor:pointer}.ds-play svg{width:23px;height:23px;fill:currentColor}.ds-play:hover:enabled{background:var(--play-hover,#1944b5)}.ds-play:focus-visible{outline:3px solid var(--blue,#2455da);outline-offset:3px;}.ds-play:disabled{opacity:.4;cursor:default}@media(prefers-reduced-motion:reduce){.ds-play{transition:none}}"
+    },
+    {
+      "name": "Pick a starting point",
+      "kind": "button",
+      "refersTo": "button-pick",
+      "description": "Outlined page-selection action; pale fill also signals picking.",
+      "html": "<button class=\"ds-pick\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m5 3 14 9-7 1-3 7-4-17Z\"/></svg>Pick a starting point</button>",
+      "css": ".ds-pick{font-family:Atkinson,system-ui,sans-serif;transition:background-color .15s ease,color .15s ease;width:100%;display:flex;align-items:center;justify-content:center;gap:10px;border:1px solid var(--pick-border,#a9bce9);border-radius:9px;background:var(--surface,#fff);padding:12px;color:var(--blue,#2455da);font-size:15px;font-weight:700;line-height:1.5;cursor:pointer}.ds-pick svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.ds-pick:hover,.ds-pick.ds-picking{background:var(--selection,#e6edff)}.ds-pick:focus-visible{outline:3px solid var(--blue,#2455da);outline-offset:3px;}@media(prefers-reduced-motion:reduce){.ds-pick{transition:none}}"
+    },
+    {
+      "name": "Icon action",
+      "kind": "button",
+      "refersTo": "button-icon",
+      "description": "Quiet square control for settings and passage skipping.",
+      "html": "<button class=\"ds-icon\" aria-label=\"Voice settings\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M4 7h16M4 17h16M9 4v6m6 4v6\"/></svg></button>",
+      "css": ".ds-icon{font-family:Atkinson,system-ui,sans-serif;transition:background-color .15s ease,color .15s ease;display:grid;place-items:center;border:0;background:transparent;border-radius:8px;width:38px;height:38px;color:var(--ink,#182846);cursor:pointer}.ds-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.ds-icon:hover:enabled{background:var(--selection,#e6edff)}.ds-icon:focus-visible{outline:3px solid var(--blue,#2455da);outline-offset:3px;}.ds-icon:disabled{opacity:.4;cursor:default}@media(prefers-reduced-motion:reduce){.ds-icon{transition:none}}"
+    },
+    {
+      "name": "Secondary action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Outlined action for key saving and voice preview.",
+      "html": "<button class=\"ds-secondary\">Listen to this voice</button>",
+      "css": ".ds-secondary{font-family:Atkinson,system-ui,sans-serif;transition:background-color .15s ease,color .15s ease;border:1px solid var(--field-border,#b9c5d9);background:var(--surface,#fff);border-radius:7px;color:var(--ink,#182846);padding:8px 13px;font-size:13px;line-height:1.5;cursor:pointer}.ds-secondary:hover:enabled{background:var(--selection,#e6edff)}.ds-secondary:focus-visible{outline:3px solid var(--blue,#2455da);outline-offset:3px;}.ds-secondary:disabled{opacity:.4;cursor:default}@media(prefers-reduced-motion:reduce){.ds-secondary{transition:none}}"
+    },
+    {
+      "name": "Text action",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "Compact cobalt action beside source metadata or form controls.",
+      "html": "<button class=\"ds-text\">Load page</button>",
+      "css": ".ds-text{font-family:Atkinson,system-ui,sans-serif;transition:background-color .15s ease,color .15s ease;border:0;background:transparent;color:var(--blue,#2455da);font-size:13px;line-height:1.5;padding:5px 0;white-space:nowrap;text-underline-offset:3px;cursor:pointer}.ds-text:hover{text-decoration:underline}.ds-text:focus-visible{outline:3px solid var(--blue,#2455da);outline-offset:3px;}@media(prefers-reduced-motion:reduce){.ds-text{transition:none}}"
+    },
+    {
+      "name": "Voice field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Full-width native selection field with a visible external focus ring.",
+      "html": "<label class=\"ds-field-label\" for=\"ds-voice\">Voice</label><select class=\"ds-field\" id=\"ds-voice\"><option>Kore</option><option>Puck</option></select>",
+      "css": ".ds-field-label{font-family:Atkinson,system-ui,sans-serif;display:block;color:var(--ink,#182846);font-size:13px;font-weight:700;margin:15px 0 6px;line-height:1.5}.ds-field{font-family:Atkinson,system-ui,sans-serif;transition:background-color .15s ease,color .15s ease;width:100%;border:1px solid var(--field-border,#b9c5d9);background:var(--surface,#fff);color:var(--ink,#182846);border-radius:7px;padding:10px;font-size:14px;line-height:1.5;min-width:0;cursor:pointer}.ds-field:focus-visible{outline:3px solid var(--blue,#2455da);outline-offset:3px;}@media(prefers-reduced-motion:reduce){.ds-field{transition:none}}"
+    },
+    {
+      "name": "Playback container",
+      "kind": "card",
+      "refersTo": "player",
+      "description": "The single framed operational surface, with status and a slim progress track.",
+      "html": "<section class=\"ds-player\" aria-label=\"Playback controls\"><div class=\"ds-status\"><span>Ready to listen</span><span>1 / 9</span></div><progress class=\"ds-progress\" max=\"9\" value=\"1\" aria-label=\"Reading progress\"></progress></section>",
+      "css": ".ds-player{font-family:Atkinson,system-ui,sans-serif;background:var(--surface,#fff);border:1px solid var(--line,#dce3ef);border-radius:14px;padding:17px 16px 12px;color:var(--ink,#182846)}.ds-status{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;line-height:1.5;color:var(--muted,#53627b);font-variant-numeric:tabular-nums}.ds-status span:first-child{color:var(--ink,#182846)}.ds-progress{display:block;width:100%;height:4px;border:0;margin:12px 0 18px;appearance:none;background:var(--selection,#e6edff);border-radius:8px;overflow:hidden}.ds-progress::-webkit-progress-bar{background:var(--selection,#e6edff)}.ds-progress::-webkit-progress-value{background:var(--blue,#2455da)}"
+    },
+    {
+      "name": "Transcript passage",
+      "kind": "custom",
+      "refersTo": "passage",
+      "description": "A paragraph-sized seek target; the current passage has a pale blue fill.",
+      "html": "<button class=\"ds-passage\" aria-current=\"true\">A quiet place to study can make it easier to focus.</button><button class=\"ds-passage\">Give an idea some space.</button>",
+      "css": ".ds-passage{font-family:Atkinson,system-ui,sans-serif;transition:background-color .15s ease,color .15s ease;display:block;border:0;border-radius:8px;padding:12px;width:100%;text-align:left;background:transparent;color:var(--muted,#53627b);font-size:15px;line-height:1.65;overflow-wrap:anywhere;cursor:pointer;margin-bottom:4px}.ds-passage:hover{background:var(--passage-hover,#edf1f9);color:var(--ink,#182846)}.ds-passage[aria-current=true]{background:var(--selection,#e6edff);color:var(--ink,#182846)}.ds-passage:focus-visible{outline:3px solid var(--blue,#2455da);outline-offset:3px;}@media(prefers-reduced-motion:reduce){.ds-passage{transition:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Pocket Audio Guide",
+    "overview": "A pocket museum audio guide adapted to studying: a compact cobalt transport sits beside the page, while cool white paper and quiet ink make the source text the main material. The interface feels calm, legible and immediately usable. Its visual identity comes from the play silhouette, readable type and passage highlighting rather than imagery.\n\nThe single column moves from source title to starting-point selection, playback and voice controls, then a continuous transcript. Voice settings open in place as a disclosure. The player is the one framed operational surface; passages remain part of a shared reading field.",
+    "keyCharacteristics": [
+      "A cobalt transport on cool white paper.",
+      "Locally bundled, highly legible typography.",
+      "A continuous transcript with one current-passage highlight.",
+      "Compact controls and settings disclosed in place."
+    ],
+    "rules": [
+      {
+        "name": "The Cobalt Transport Rule",
+        "body": "Concentrate solid cobalt in the play control; use it as text, outlines or small accents elsewhere.",
+        "section": "colors"
+      },
+      {
+        "name": "The Continuous Reading Rule",
+        "body": "Preserve paragraph-sized text with generous leading; use weight and current-passage color rather than separate cards to distinguish passage roles.",
+        "section": "typography"
+      },
+      {
+        "name": "The Quiet Surface Rule",
+        "body": "Use tonal contrast and thin boundaries for structure; preserve the flat reading field around the player.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do preserve the source-title, start-selection, playback and transcript hierarchy.",
+      "Do keep the transcript continuous and show the current passage with pale blue and ink.",
+      "Do use the bundled regular and bold typefaces and visible keyboard focus.",
+      "Do disclose voice settings in place and keep supporting hints beside their controls."
+    ],
+    "donts": [
+      "Don't introduce marketing claims or decorative illustration into the listening panel.",
+      "Don't turn every passage into a bordered or elevated card.",
+      "Don't replace written playback states or recovery guidance with color alone.",
+      "Don't add decorative shadows to the flat paper-and-surface system."
+    ]
+  }
+}
