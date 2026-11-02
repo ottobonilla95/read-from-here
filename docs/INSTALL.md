@@ -20,9 +20,9 @@ Clone the repository or download and unzip its source. Follow the same steps abo
 
 ## First listen
 
-Choose **Pick a starting point**, then click a paragraph or image on the page. A photo starts reading at the next caption or passage; this version does not read text inside images. Press Escape to cancel picking.
+With the side panel open, click a paragraph or image directly on the page. No picking button is needed. A subtle outline previews the passage under your pointer. A photo moves your place to the next caption or passage; this version does not read text inside images.
 
-Press **Play**. Pause, move between passages, or change the speed using the slider. Click a passage in the side panel to move your place. Keep the panel open while listening.
+Press **Play**. Pause, move between passages, or change the speed using the slider. Click a passage on the page or in the side panel to move your place. Playback continues from the new passage if already playing, and stays paused if paused. Earlier passages remain available with Previous. Keep the panel open while listening; closing it removes the page click behavior. Links, buttons, forms, and dragging to select text keep working normally.
 
 To read only part of the page, highlight text and choose **Use selected text**. You can also right-click a selection and choose **Read selected text**.
 

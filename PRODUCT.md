@@ -15,7 +15,7 @@ A student who wants to listen to online study material instead of reading it vis
 Choose a starting point on a web page and listen in a natural voice with play, pause, and playback speed controls.
 
 ## Operating Context
-Open a page, activate the extension, pick a paragraph or image, choose a voice and play. Bring a personal API key to use a cloud provider. A free browser voice is available without a key.
+Open a page, activate the extension, click a paragraph or image directly, choose a voice and play. Direct clicks move the reader while the panel is open, preserve playing/paused state, and keep earlier passages available. Bring a personal API key to use a cloud provider. A free browser voice is available without a key.
 
 ## Capabilities and Constraints
 Requested: click-to-start, selectable voices, API-key settings, play/pause, speed. Provider candidates explicitly mentioned: OpenAI, ElevenLabs, Gemini. No paid reader subscription. Cloud API usage can cost money. API keys must never be committed. Assumption: local unpacked Chrome extension initially. Text inside photographs and scanned PDFs requires OCR and is outside this first version; choosing a photograph starts at surrounding page text.

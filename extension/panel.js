@@ -2,10 +2,24 @@ import {PROVIDERS,OPENAI_VOICES,GEMINI_VOICES,DEFAULTS,makeQueue,estimateMinutes
 import {elevenVoices} from './providers.js';
 import {ReaderPlayer} from './player.js';
 const $=id=>document.getElementById(id);
-let settings=safeSettings(), page=null, sourceTabId=null, voiceList=[], picking=false, voiceVersion=0, voiceAbort;
+let settings=safeSettings(), page=null, sourceTabId=null, voiceList=[], voiceVersion=0, voiceAbort, readerPort=null;
 let renderedQueue=[];
 const port=chrome.runtime.connect({name:'reader-panel'});
 port.onDisconnect.addListener(()=>{});
+function disconnectPage(){readerPort?.disconnect();readerPort=null;}
+function connectClicks(tabId){
+  disconnectPage();
+  const connection=chrome.tabs.connect(tabId,{name:'reader-page'});
+  readerPort=connection;
+  connection.onMessage.addListener(message=>{
+    if(connection!==readerPort || tabId!==sourceTabId || message.action!=='page-clicked')return;
+    const autoplay=player.want, paused=player.phase==='paused';
+    loadPage(message.page,tabId);
+    void player.seek(player.index,autoplay);
+    if(paused && !autoplay)player.pause();
+  });
+  connection.onDisconnect.addListener(()=>{void chrome.runtime.lastError;if(readerPort===connection)readerPort=null;});
+}
 function notice(message,error=false){$('notice').hidden=!message;$('notice').textContent=message;$('notice').classList.toggle('error',error);}
 async function saveSettings(){await chrome.storage.local.set({settings});}
 async function getKey(provider=settings.provider){
@@ -56,15 +70,16 @@ function renderQueue(){
     button.addEventListener('click',()=>{finishPreview();notice('');void player.seek(index,player.want);});
     li.append(button);fragment.append(li);
   });
-  $('transcript').replaceChildren(fragment);$('empty-state').hidden=renderedQueue.length>0;setCurrent(0);
+  $('transcript').replaceChildren(fragment);$('empty-state').hidden=renderedQueue.length>0;setCurrent(player.index);
 }
 function loadPage(data,tabId=sourceTabId){
   finishPreview();
   page=data;sourceTabId=tabId;renderedQueue=makeQueue(data.blocks||[]);
-  player.load(renderedQueue);renderQueue();
+  const start=Math.max(0,renderedQueue.findIndex(item=>item.blockId===data.startBlockId));
+  player.load(renderedQueue,start);renderQueue();
   $('page-title').textContent=data.title||'Selected text';
   try{$('site-name').textContent=new URL(data.url).hostname;}catch{$('site-name').textContent='Your text';}
-  $('source-hint').textContent=renderedQueue.length?'Choose a voice and press play. You can change your starting point anytime.':'No readable text found. Try selecting text on the page, or open the article outside a PDF viewer.';
+  $('source-hint').textContent=renderedQueue.length?'Click any paragraph or photo on the page to move your place. Then press play.':'No readable text found. Try selecting text on the page, or open the article outside a PDF viewer.';
   updateTime();notice(renderedQueue.length?'':'No readable text was found here. Try another part of the page or use selected text.',!renderedQueue.length);
 }
 function updateTime(){$('reading-time').textContent=renderedQueue.length?`About ${estimateMinutes(renderedQueue,settings.speed)} min`:'';}
@@ -74,6 +89,7 @@ async function connectPage(action='snapshot'){
   const result=await chrome.runtime.sendMessage({target:'background',action:'attach',tabId:tab.id});
   if(!result?.ok)throw new Error(result?.error||'Click the extension icon on the page to allow reading.');
   sourceTabId=tab.id;
+  connectClicks(tab.id);
   return content(action);
 }
 function showSettings(open=true){$('settings').hidden=!open;$('settings-toggle').setAttribute('aria-expanded',String(open));if(open)$('provider').focus();}
@@ -110,19 +126,11 @@ async function renderProvider(){
   $('remember-key').checked=Boolean(local.keys?.[provider]);$('api-key').value=await getKey(provider);$('api-key').type='password';$('show-key').textContent='Show';$('show-key').setAttribute('aria-label','Show API key');$('key-status').textContent='';
   await refreshVoices();await saveSettings();
 }
-async function cancelPick(){if(picking)await content('cancel-pick').catch(()=>{});picking=false;$('pick-start').classList.remove('is-picking');$('pick-start').lastChild.textContent='Pick a starting point';}
 $('settings-toggle').addEventListener('click',()=>showSettings($('settings').hidden));
 $('settings-close').addEventListener('click',()=>{showSettings(false);$('settings-toggle').focus();});
 $('voice-summary').addEventListener('click',()=>showSettings());
-$('load-page').addEventListener('click',async()=>{try{finishPreview();await cancelPick();player.stop();await content('clear').catch(()=>{});loadPage(await connectPage());}catch(error){notice(error.message,true);}});
-$('pick-start').addEventListener('click',async()=>{
-  try{
-    if(picking){await cancelPick();notice('');return;}
-    finishPreview();player.pause();await content('clear').catch(()=>{});
-    await connectPage('pick');picking=true;$('pick-start').classList.add('is-picking');$('pick-start').lastChild.textContent='Cancel picking';notice('Click a paragraph or photo on the page. Press Esc to cancel.');
-  }catch(error){notice(error.message,true);}
-});
-$('read-selection').addEventListener('click',async()=>{try{await cancelPick();const data=await connectPage('selection');if(!data.blocks[0]?.text.trim())throw new Error('Select some text on the page first, then choose Use selected text.');loadPage(data);}catch(error){notice(error.message,true);}});
+$('load-page').addEventListener('click',async()=>{try{finishPreview();player.stop();await content('clear').catch(()=>{});loadPage(await connectPage());}catch(error){notice(error.message,true);}});
+$('read-selection').addEventListener('click',async()=>{try{const data=await connectPage('selection');if(!data.blocks[0]?.text.trim())throw new Error('Select some text on the page first, then choose Use selected text.');loadPage(data);}catch(error){notice(error.message,true);}});
 $('play').addEventListener('click',()=>{finishPreview();notice('');void player.toggle();});
 $('previous').addEventListener('click',()=>{finishPreview();notice('');void player.seek(player.index-1);});
 $('next').addEventListener('click',()=>{finishPreview();notice('');void player.seek(player.index+1);});
@@ -158,20 +166,18 @@ $('preview-voice').addEventListener('click',async()=>{
   $('preview-voice').textContent='Stop voice preview';notice('Voice preview. Your place in the page is saved.');await previewPlayer.play();
 });
 function finishPreview(){if(!previewActive)return;previewActive=false;previewPlayer.stop();$('preview-voice').textContent='Listen to this voice';notice('');}
-chrome.runtime.onMessage.addListener((message,sender)=>{
-  if(message.target!=='panel'||sender.id!==chrome.runtime.id)return;
-  if(message.action==='picked' && sender.tab?.id===sourceTabId){picking=false;$('pick-start').classList.remove('is-picking');$('pick-start').lastChild.textContent='Pick a starting point';finishPreview();loadPage(message.page,sender.tab.id);}
-  if(message.action==='pick-cancelled'){picking=false;$('pick-start').classList.remove('is-picking');$('pick-start').lastChild.textContent='Pick a starting point';notice('');}
-});
 async function pendingSelection(value){
   if(!value)return;
-  finishPreview();await cancelPick();loadPage({title:value.title,url:value.url,blocks:[{id:'selection',text:value.text,kind:'p'}]},value.tabId);
+  finishPreview();disconnectPage();
+  const attached=await chrome.runtime.sendMessage({target:'background',action:'attach',tabId:value.tabId});
+  if(attached?.ok)connectClicks(value.tabId);
+  loadPage({title:value.title,url:value.url,blocks:[{id:'selection',text:value.text,kind:'p'}]},value.tabId);
   await chrome.storage.session.remove('pendingSelection');
 }
 chrome.storage.onChanged.addListener((changes,area)=>{if(area==='session'&&changes.pendingSelection?.newValue)void pendingSelection(changes.pendingSelection.newValue);});
-chrome.tabs.onRemoved.addListener(tabId=>{if(tabId===sourceTabId){finishPreview();player.stop();notice('The source tab was closed. Open another page and choose Load page.');sourceTabId=null;}});
-chrome.tabs.onUpdated.addListener((tabId,change)=>{if(tabId===sourceTabId&&change.status==='loading'){finishPreview();player.stop();void cancelPick();notice('The page changed. Choose Load page to read the new page.');}});
-addEventListener('pagehide',()=>{finishPreview();player.stop();void cancelPick();void content('clear').catch(()=>{});});
+chrome.tabs.onRemoved.addListener(tabId=>{if(tabId===sourceTabId){disconnectPage();finishPreview();player.stop();notice('The source tab was closed. Open another page and choose Load page.');sourceTabId=null;}});
+chrome.tabs.onUpdated.addListener((tabId,change)=>{if(tabId===sourceTabId&&change.status==='loading'){disconnectPage();finishPreview();player.stop();notice('The page changed. Choose Load page to read the new page.');}});
+addEventListener('pagehide',()=>{disconnectPage();finishPreview();player.stop();void content('clear').catch(()=>{});});
 async function init(){
   const result=await chrome.storage.local.get('settings');settings=safeSettings(result.settings);
   $('speed').value=settings.speed;$('speed-value').textContent=`${settings.speed}×`;$('follow').checked=settings.follow;

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Read from here",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Pick a place on a web page and listen. Free browser voices or your own OpenAI, ElevenLabs, or Gemini API key.",
   "minimum_chrome_version": "116",
   "permissions": ["activeTab", "scripting", "storage", "sidePanel", "tts", "contextMenus"],

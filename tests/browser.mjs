@@ -35,20 +35,41 @@ try{
   const words=await panel.locator('#transcript').textContent();assert.ok(!words.includes('must not be read'));assert.equal((words.match(/short rest/g)||[]).length,1);
   console.log('PASS article extraction, hidden/navigation filtering, and nested-block deduplication');
   await panel.screenshot({path:path.join(root,'artifacts/panel-ready.png'),fullPage:true});
-  // Choose the second paragraph, even when its click would otherwise follow a link.
-  await worker.evaluate(id=>chrome.tabs.update(id,{active:true}),tabId);
-  await panel.locator('#pick-start').click();await article.locator('#second').click();
-  await until(async()=>(await panel.locator('.passage').first().textContent()).startsWith('Researchers'),'Paragraph picker failed');
-  assert.equal(await panel.locator('#notice').isVisible(),false);
-  await panel.locator('#pick-start').click();await article.locator('#photo').click();
-  await until(async()=>(await panel.locator('.passage').first().textContent()).startsWith('A quiet place'),'Photo picker failed');
-  console.log('PASS paragraph and photograph start points');
-  await panel.locator('#pick-start').click();await article.keyboard.press('Escape');
-  await until(async()=>!(await panel.locator('#pick-start').getAttribute('class')).includes('is-picking'),'Escape did not cancel');
+  // Page clicks work immediately, with the whole article still available for previous/next.
+  assert.equal(await panel.locator('#pick-start').count(),0);
+  await article.locator('#second').hover();
+  await until(async()=>await article.locator('[data-rfh-ui]:visible').count()>0,'Hover outline missing');
+  await article.locator('#second').click();
+  await until(async()=>(await panel.locator('.passage[aria-current="true"]').textContent()).startsWith('Researchers'),'Direct paragraph click failed');
+  assert.equal(await panel.locator('.passage').count(),9);
+  assert.equal(await panel.locator('#playback-status').textContent(),'Ready to listen');
+  await article.locator('#photo').click();
+  await until(async()=>(await panel.locator('.passage[aria-current="true"]').textContent()).startsWith('A quiet place'),'Direct photo click failed');
+  await panel.locator('#previous').click();
+  assert.match(await panel.locator('.passage[aria-current="true"]').textContent(),/^Researchers/);
+  console.log('PASS direct paragraph/photo clicks, hover feedback, and preserved earlier passages');
+  // Links and interactive controls must retain their ordinary browser behavior.
+  await article.locator('#normal-link').click();
+  assert.equal(new URL(article.url()).hash,'#normal-link');
+  assert.match(await panel.locator('.passage[aria-current="true"]').textContent(),/^Researchers/);
+  await article.locator('#normal-button').click();
+  assert.equal(await article.locator('#normal-button').textContent(),'Clicked');
+  await article.locator('#normal-input').fill('Study notes');
+  assert.match(await panel.locator('.passage[aria-current="true"]').textContent(),/^Researchers/);
+  await article.locator('#first').dispatchEvent('click',{button:0,ctrlKey:true});
+  assert.match(await panel.locator('.passage[aria-current="true"]').textContent(),/^Researchers/);
+  console.log('PASS links, buttons, input fields, and modified clicks keep normal behavior');
   await article.evaluate(()=>{const range=document.createRange();range.selectNodeContents(document.getElementById('second'));getSelection().removeAllRanges();getSelection().addRange(range);});
   await panel.locator('#read-selection').click();await until(async()=>await panel.locator('.passage').count()===1,'Selection did not load');
   assert.match(await panel.locator('.passage').textContent(),/^Researchers/);
-  console.log('PASS selection-only reading and picker cancellation');
+  await article.locator('#first').scrollIntoViewIfNeeded();
+  const firstBounds=await article.locator('#first').boundingBox();
+  await article.mouse.move(firstBounds.x+5,firstBounds.y+10);await article.mouse.down();
+  await article.mouse.move(firstBounds.x+Math.min(200,firstBounds.width-10),firstBounds.y+10,{steps:10});await article.mouse.up();
+  assert.ok(await article.evaluate(()=>!getSelection().isCollapsed),'The drag should select text');
+  assert.equal(await panel.locator('.passage').count(),1,'Dragging a selection should not seek');
+  await article.evaluate(()=>getSelection().removeAllRanges());
+  console.log('PASS selected-text reading and selection without accidental seeking');
   // No real account keys or paid requests are used by this test.
   const requests=[];await context.route('https://api.openai.com/**',async route=>{requests.push(JSON.parse(route.request().postData()));await delay(250);await route.fulfill({status:200,contentType:'audio/wav',body:wav()});});
   await panel.locator('#settings-toggle').click();await panel.locator('#provider').selectOption('openai');
@@ -87,6 +108,20 @@ try{
   await panel.setViewportSize({width:390,height:1000});await panel.locator('#settings-close').click();
   await panel.locator('#load-page').click();await until(async()=>await panel.locator('.passage').count()===9,'Reload article failed');
   await panel.screenshot({path:path.join(root,'artifacts/panel-ready.png'),fullPage:true});
+  // A click during playback keeps playing; a paused jump makes no generation request.
+  await panel.locator('#play').click();
+  await until(async()=>await panel.locator('#playback-status').textContent()==='Listening','Playback did not start');
+  await article.locator('#second').click();
+  await until(async()=>await panel.locator('#playback-status').textContent()==='Listening' && (await panel.locator('.passage[aria-current="true"]').textContent()).startsWith('Researchers'),'A playing jump did not resume at the clicked paragraph');
+  await panel.locator('#play').click();
+  await article.locator('#photo').click();
+  await until(async()=>await panel.locator('#playback-status').textContent()==='Paused' && (await panel.locator('.passage[aria-current="true"]').textContent()).startsWith('A quiet place'),'A paused jump did not stay paused');
+  console.log('PASS direct page jumps preserve playing and paused states');
+  await panel.close();
+  await until(async()=>await article.locator('[data-rfh-ui]').count()===0,'Page listeners/highlights survived panel close');
+  await article.locator('#first').hover();await article.locator('#first').click();
+  assert.equal(await article.locator('[data-rfh-ui]').count(),0);
+  console.log('PASS closing the reader removes direct-click behavior and highlights');
   assert.deepEqual(errors,[]);console.log('PASS 280px layout and no uncaught browser errors');
   await writeFile(path.join(root,'artifacts/browser-test.txt'),'All extension browser checks passed. Provider responses mocked. Shipped activeTab permissions; toolbar activation tested. No real API calls.\n');
 }finally{await context?.close();await new Promise(resolve=>server.close(resolve));await rm(temp,{recursive:true,force:true});}

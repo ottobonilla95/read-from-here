@@ -12,23 +12,23 @@ Start with free browser voices. Bring your own OpenAI, ElevenLabs, or Gemini API
 2. Open `chrome://extensions` and turn on **Developer mode**.
 3. Click **Load unpacked** and select the unzipped **Read-from-here** folder—the one containing `manifest.json`.
 4. Pin **Read from here** from Chrome's extensions menu, then click its icon on an article.
-5. Choose **Pick a starting point**, click a passage on the page, and press **Play**.
+5. Click a paragraph or photo directly on the page, then press **Play**.
 
 If you cloned this repository or downloaded its source, select the **extension** folder at step 3. No build step is needed. [Full installation guide](docs/INSTALL.md).
 
-<img src="docs/images/reader.png" alt="Read from here beside a study article, with a starting-point picker, playback controls, speed slider, and a list of passages." width="360">
+<img src="docs/images/reader.png" alt="Read from here beside a study article, with playback controls, speed slider, and a list of passages." width="360">
 
 *Example page used for testing.*
 
 ## A reader that starts where you want
 
-- **Choose your place.** Click a paragraph to begin there. Click a photo to begin at the next caption or passage. Press Escape to cancel picking.
+- **Choose your place.** Click a paragraph to begin there. Click a photo to begin at the next caption or passage. No picking mode or extra button. While playing, a click continues from that passage; while paused, it moves your place without starting audio.
 - **Listen to a selection.** Highlight text and choose **Use selected text**, or right-click it and choose **Read selected text**.
 - **Keep your own pace.** Play, pause, skip between passages, and adjust speed from **0.5× to 3×**.
 - **Follow along.** The current passage is highlighted on the page. Turn off automatic following when you want to scroll freely.
 - **Try different voices.** Pick a voice and hear a short preview before returning to your article.
 
-Keep the side panel open while listening. Closing it stops playback. Use **Load page** to switch to the current page; click the extension icon on a new site to grant access.
+Keep the side panel open while listening. Hover over a passage to preview your jump. Links, forms, and text selection keep their usual behavior. Closing the panel stops playback and removes the page click listener. Use **Load page** to switch to the current page; click the extension icon on a new site to grant access.
 
 ## Pick a voice
 
