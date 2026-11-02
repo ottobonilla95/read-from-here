@@ -4,9 +4,9 @@ The selected visual target is option 1 from the three mockups generated on 2 Nov
 
 ## Main controls
 
-A 360 × 72 CSS-pixel white toolbar sits centered, 24 pixels above the bottom of the viewport. It has a 24-pixel corner radius and a soft navy shadow. A 52-pixel cobalt circle contains the play/pause icon. The speed group contains two 32-pixel circular buttons and a centered numeric speed. A thin divider separates the settings icon. There are exactly four buttons: play/pause, slower, faster, settings.
+A 280 × 56 CSS-pixel toolbar sits centered, 18 pixels above the bottom of the viewport. Its white background is 78% opaque with a 12-pixel backdrop blur; controls and text remain fully opaque. It has a 20-pixel corner radius and a soft navy shadow. A 40-pixel cobalt circle contains the play/pause icon. The speed group contains two 28-pixel circular buttons and a centered 16-pixel numeric speed. Reduced-transparency preferences use a solid white background. A thin divider separates the settings icon. There are exactly four buttons: play/pause, slower, faster, settings.
 
-At widths below 340 pixels, spacing and controls contract to keep the whole strip within the viewport. The toolbar does not alter the page's content layout. Its shadow root isolates control styles from the host page. Accessible names and focus rings are present without adding visible labels or instructions.
+At widths below 280 pixels, spacing and controls contract to keep the whole strip within the viewport. The toolbar does not alter the page's content layout. Its shadow root isolates control styles from the host page. Accessible names and focus rings are present without adding visible labels or instructions.
 
 ## Color and type
 

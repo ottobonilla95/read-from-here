@@ -2,6 +2,12 @@
 
 final result: passed
 
+## v0.3.1 — requested refinement
+
+The user requested a smaller strip and a partially transparent background. The latest browser capture and README image show 280 × 56px (previously 360 × 72px), a 40px play button, 16px speed value, 78%-opaque white surface, 12px backdrop blur, and an 18px bottom offset. Text and icons remain opaque. Reduced-transparency preferences get a solid white surface. These differences from the original mockup are intentional user-directed changes.
+
+The full and focused comparison artifacts were regenerated with the original target and revised implementation together. The revised strip remains legible, centered, unclipped, and fully usable at 280px viewport width. The existing complete browser suite passed again, including playback, settings, credentials, highlighting, CSP, and cleanup. Version 0.3.1 was reloaded in the personal otto Chrome profile and its four controls verified on the project article. No actionable P0/P1/P2 findings remain.
+
 ## Findings
 
 No actionable P0, P1, or P2 findings remain. The shipped extension has four controls: play/pause, slower, faster, and settings. It highlights the article itself and preserves the page's links, forms, selection, and layout.
@@ -28,7 +34,7 @@ The mock article is a visual fixture, not extension UI. Its text wraps different
 ## Required fidelity surfaces
 
 - **Typography:** bundled Atkinson Hyperlegible, system sans fallback; speed is readable at 19px. Control labels, weights, line heights, and centering are consistent. No truncation at desktop or 280px widths.
-- **Spacing/layout:** compact 360 × 72px white strip with a 52px primary circle, rounded corners, soft elevation, centered at the bottom with a 24px gap. Four controls and the settings divider match the selected hierarchy. Host page content stays intact.
+- **Spacing/layout (initial v0.3.0):** compact 360 × 72px white strip with a 52px primary circle, rounded corners, soft elevation, centered at the bottom with a 24px gap. See v0.3.1 refinement above for current dimensions. Four controls and the settings divider match the selected hierarchy. Host page content stays intact.
 - **Colors/tokens:** cobalt playback button and current word, pale blue sentence highlight, dark navy labels, pale neutral speed buttons, and white surface match the source's palette. Active and disabled controls remain distinguishable.
 - **Assets:** official MIT-licensed Tabler SVG icons, served locally, remain sharp at native size. These are standard controls; no custom logo or illustration from the reference has been substituted. No remote assets or rasterized interface controls.
 - **Copy/content:** the visible strip contains only the numeric speed. Accessible names describe play/pause, slower, faster, and voice settings. Provider, voice, model, and API key fields live in settings. Errors appear only when relevant.
