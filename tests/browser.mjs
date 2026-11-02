@@ -198,6 +198,7 @@ try{
   await until(async()=>await article.evaluate(()=>CSS.highlights.has('read-from-here-word')),'Native word highlight missing');
   assert.equal(await article.evaluate(()=>Array.from(CSS.highlights.get('read-from-here-word'))[0].toString()),'helps');
   await article.mouse.move(0,0);await article.screenshot({path:path.join(root,'artifacts/toolbar-desktop.png')});
+  await ui.getByRole('button',{name:'Voice settings'}).hover();await ui.locator('.toolbar').screenshot({path:path.join(root,'artifacts/toolbar-settings-hover.png')});
   await ui.getByRole('button',{name:'Pause',exact:true}).click();
   assert.deepEqual(errors,[]);console.log('PASS desktop capture and no uncaught page errors');
   await writeFile(path.join(root,'artifacts/browser-test.txt'),'All floating extension checks passed. Shipped activeTab permissions. Provider responses mocked. No real API calls.\n');

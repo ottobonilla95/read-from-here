@@ -2,6 +2,12 @@
 
 final result: passed
 
+## v0.3.5 — quiet circular hover
+
+The user's cropped screenshot showed a square hover fill around the settings icon. The divider is now outside the settings button, which has a 24px circular hit surface. Secondary controls use an 8%-opaque navy hover tint. Playback keeps its existing cobalt hover. Toolbar size, transparency, type, copy, and rounded container are preserved.
+
+Opened the user screenshot `/var/folders/2y/pyvmg12166q8s3jg1wq61k640000gn/T/codex-clipboard-a533c2d9-37db-4e52-8e14-df4253173fb4.png` and the browser-rendered hovered toolbar `artifacts/toolbar-settings-hover.png` (240 × 48 pixels, deviceScaleFactor 1). The new capture shows the faint circle separated from the straight divider, without the rectangular block. The complete browser suite passes. Version 0.3.5 was reloaded in personal Chrome and the lesson toolbar replaced without refreshing the lesson. No actionable P0/P1/P2 findings remain.
+
 ## v0.3.4 — point and pick
 
 The user reported no pointer cursor and difficulty choosing text in a lesson. Eligible text now gets a temporary hand cursor and hover outline while the player is open. Targets are resolved against the current DOM, including lessons expanded after activation and articles outside the initial reading root. Native links, controls, modifiers, and drag selection keep their behavior. Closing the reader restores original cursor styling. Versioned instances dispose old handlers and replace orphaned controls; a toolbar removed by page rebuilding is restored on the next activation.

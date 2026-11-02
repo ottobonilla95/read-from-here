@@ -4,7 +4,7 @@ The selected visual target is option 1 from the three mockups generated on 2 Nov
 
 ## Main controls
 
-A 240 × 48 CSS-pixel toolbar sits centered, 18 pixels above the bottom of the viewport. Its white background is 50% opaque with a 10-pixel backdrop blur; controls and text remain fully opaque. It has fully rounded pill-shaped ends and a soft navy shadow. A 32-pixel cobalt circle contains the play/pause icon. The speed group contains two 24-pixel circular buttons and a centered 14-pixel numeric speed. Reduced-transparency preferences use a solid white background. A thin divider separates the settings icon. There are exactly four buttons: play/pause, slower, faster, settings.
+A 240 × 48 CSS-pixel toolbar sits centered, 18 pixels above the bottom of the viewport. Its white background is 50% opaque with a 10-pixel backdrop blur; controls and text remain fully opaque. It has fully rounded pill-shaped ends and a soft navy shadow. A 32-pixel cobalt circle contains the play/pause icon. The speed group contains two 24-pixel circular buttons and a centered 14-pixel numeric speed. Reduced-transparency preferences use a solid white background. A separate thin divider precedes the settings button. Secondary controls use a faint circular navy hover tint; the divider stays outside the hover surface. There are exactly four buttons: play/pause, slower, faster, settings.
 
 At widths below 250 pixels, spacing and controls contract to keep the whole strip within the viewport. The toolbar does not alter the page's content layout. Its shadow root isolates control styles from the host page. Accessible names and focus rings are present without adding visible labels or instructions.
 
@@ -17,7 +17,7 @@ At widths below 250 pixels, spacing and controls contract to keep the whole stri
 - Divider: `#dce3ef`.
 - Passage highlight: `#e6edff`.
 - Current word: cobalt background, white foreground.
-- Toolbar type: locally bundled Atkinson Hyperlegible, 19-pixel tabular speed value.
+- Toolbar type: locally bundled Atkinson Hyperlegible, 14-pixel tabular speed value.
 - Icons: the official MIT-licensed Tabler player-play, player-pause, minus, plus, and adjustments-horizontal assets.
 
 The article keeps its own typography, colors, and layout. Highlight ranges change text paint, without wrapping or replacing the author's DOM.

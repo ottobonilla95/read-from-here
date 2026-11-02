@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Read from here",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Click any paragraph and listen. A simple floating player with speed controls and your choice of voice.",
   "minimum_chrome_version": "116",
   "permissions": [
