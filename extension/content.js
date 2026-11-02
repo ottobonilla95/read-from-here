@@ -1,6 +1,10 @@
 (() => {
-  if (globalThis.__readFromHere) return;
-  globalThis.__readFromHere = true;
+  const version=chrome.runtime.getManifest().version;
+  if(globalThis.__readFromHere?.version===version)return;
+  globalThis.__readFromHere?.dispose?.();
+  // A previous extension version may have left controls in an already-open tab.
+  document.querySelectorAll('rfh-reader,[data-rfh-ui]').forEach(el=>el.remove());
+  const instance=globalThis.__readFromHere={version};
   const SKIP = 'nav,aside,footer,header,script,style,noscript,button,input,textarea,select,[contenteditable="true"],[role="navigation"],[role="complementary"],[aria-hidden="true"],[data-rfh-ui]';
   const SELECTOR = 'h1,h2,h3,h4,h5,h6,p,li,blockquote,pre,figcaption,td,th,dt,dd,div';
   let nextId = 0, blocks = new Map(), ids = new WeakMap(), highlight = null;
@@ -61,8 +65,10 @@
   for(const [file,weight] of [['Regular','400'],['Bold','700']]){const font=new FontFace('ReadFromHere',`url('${chrome.runtime.getURL(`assets/AtkinsonHyperlegible-${file}.ttf`)}')`,{weight});document.fonts.add(font);void font.load().catch(()=>{});}
   const icon=name=>`<img src="${chrome.runtime.getURL(`assets/tabler/${name}.svg`)}" alt="" aria-hidden="true">`;
   function showToolbar(){
-    if(host)return;
-    host=document.createElement('rfh-reader');host.dataset.rfhUi='';
+    if(host?.isConnected)return;
+    if(host)hideToolbar();
+    if(!highlightStyle.isConnected)document.documentElement.append(highlightStyle);
+    host=document.createElement('rfh-reader');host.dataset.rfhUi='';host.dataset.rfhVersion=version;
     host.style.cssText='all:initial!important;position:fixed!important;left:50%!important;bottom:18px!important;transform:translateX(-50%)!important;z-index:2147483647!important;width:min(240px,calc(100vw - 24px))!important;height:auto!important;display:block!important;color-scheme:light!important;';
     shadow=host.attachShadow({mode:'open'});
     shadow.innerHTML=`<style>
@@ -93,32 +99,44 @@
   function enableClicks(){
     const box=makeBox('#2455da');
     const INTERACTIVE='a,button,input,textarea,select,label,summary,audio,video,[contenteditable]:not([contenteditable="false"]),[role="button"],[role="link"],[role="textbox"],[role="menuitem"],[role="slider"],[role="checkbox"],[role="switch"],[data-rfh-ui]';
-    let down=null,readerRoot=rootFor();
+    let down=null,point=null;
+    const cursorNodes=new Map();
+    const clearCursor=()=>{for(const [el,value] of cursorNodes){if(value===null)el.removeAttribute('data-rfh-cursor');else el.setAttribute('data-rfh-cursor',value);}cursorNodes.clear();};
     const find=raw=>{
       if(!(raw instanceof Element)||raw.closest(INTERACTIVE))return null;
       const el=raw.closest('p,li,h1,h2,h3,h4,h5,h6,blockquote,pre,figcaption,img,td,th,dt,dd,div');
-      if(!readerRoot.isConnected)readerRoot=rootFor();
-      if(!el||!visible(el)||!readerRoot.contains(el))return null;
+      // Lessons and articles can be added or expanded after the reader opens.
+      if(!el||!visible(el))return null;
       if(el.matches('div')&&(el.querySelector(SELECTOR)||!clean(el.innerText||'')))return null;
       return el;
     };
-    const hide=()=>{box.style.display='none';};
-    const move=event=>{const el=find(event.target);if(el&&!event.buttons&&getSelection()?.isCollapsed!==false)place(box,el);else hide();};
+    const hide=()=>{box.style.display='none';clearCursor();};
+    const showHover=raw=>{
+      const el=find(raw);
+      if(el&&point&&!point.blocked&&getSelection()?.isCollapsed!==false){
+        clearCursor();
+        for(const node of new Set([el,raw])){cursorNodes.set(node,node.getAttribute('data-rfh-cursor'));node.setAttribute('data-rfh-cursor','point');}
+        place(box,el);
+      }else hide();
+    };
+    const move=event=>{point={x:event.clientX,y:event.clientY,blocked:event.buttons||event.metaKey||event.ctrlKey||event.altKey||event.shiftKey};showHover(event.target);};
+    const refreshHover=()=>{if(point)showHover(document.elementFromPoint(point.x,point.y));else hide();};
+    const leave=event=>{if(!event.relatedTarget){point=null;hide();}};
     const pointerDown=event=>{down={x:event.clientX,y:event.clientY};};
     const click=event=>{
       if(event.button!==0||event.detail>1||event.metaKey||event.ctrlKey||event.altKey||event.shiftKey)return;
       if(getSelection()?.isCollapsed===false||(down&&Math.hypot(event.clientX-down.x,event.clientY-down.y)>6))return;
       const el=find(event.target);if(!el)return;
       const page=snapshot(el);if(!page.blocks.length)return;
-      hide();void send('jump',{page});
+      box.style.display='none';void send('jump',{page});
     };
-    document.addEventListener('pointermove',move,true);document.addEventListener('pointerdown',pointerDown,true);document.addEventListener('pointerleave',hide,true);document.addEventListener('click',click,true);
-    addEventListener('scroll',hide,true);addEventListener('resize',hide);
-    cleanupClicks=()=>{document.removeEventListener('pointermove',move,true);document.removeEventListener('pointerdown',pointerDown,true);document.removeEventListener('pointerleave',hide,true);document.removeEventListener('click',click,true);removeEventListener('scroll',hide,true);removeEventListener('resize',hide);box.remove();};
+    document.addEventListener('pointermove',move,true);document.addEventListener('pointerdown',pointerDown,true);document.addEventListener('pointerup',move,true);document.addEventListener('pointerout',leave,true);document.addEventListener('click',click,true);
+    addEventListener('scroll',refreshHover,true);addEventListener('resize',refreshHover);
+    cleanupClicks=()=>{hide();document.removeEventListener('pointermove',move,true);document.removeEventListener('pointerdown',pointerDown,true);document.removeEventListener('pointerup',move,true);document.removeEventListener('pointerout',leave,true);document.removeEventListener('click',click,true);removeEventListener('scroll',refreshHover,true);removeEventListener('resize',refreshHover);box.remove();};
   }
   const passageName='read-from-here-passage',wordName='read-from-here-word';
   const highlightStyle=document.createElement('style');highlightStyle.dataset.rfhUi='';
-  highlightStyle.textContent=`::highlight(${passageName}){background:#e6edff;color:inherit}::highlight(${wordName}){background:#2455da;color:white}`;
+  highlightStyle.textContent=`[data-rfh-cursor="point"]{cursor:pointer!important}::highlight(${passageName}){background:#e6edff;color:#182846}::highlight(${wordName}){background:#2455da;color:white}`;
   document.documentElement.append(highlightStyle);
   let currentElement=null;
   function clearHighlight(){CSS.highlights?.delete(passageName);CSS.highlights?.delete(wordName);highlight?.remove();highlight=null;currentElement=null;}
@@ -161,14 +179,17 @@
   }
   const reposition=()=>{if(highlight&&currentElement?.isConnected)place(highlight,currentElement);};
   addEventListener('scroll',reposition,true);addEventListener('resize',reposition);
-  addEventListener('pagehide',()=>{hideToolbar();void send('close').catch(()=>{});});
-  chrome.runtime.onMessage.addListener((message,_sender,respond)=>{
+  const pagehide=()=>{hideToolbar();void send('close').catch(()=>{});};
+  addEventListener('pagehide',pagehide);
+  const onMessage=(message,_sender,respond)=>{
     if(message.target!=='content')return;
-    if(message.action==='toggle-toolbar'){if(host){hideToolbar();respond({visible:false});}else{showToolbar();respond({visible:true,page:snapshot()});}}
+    if(message.action==='toggle-toolbar'){if(host?.isConnected){hideToolbar();respond({visible:false});}else{showToolbar();respond({visible:true,page:snapshot()});}}
     if(message.action==='hide-toolbar'){hideToolbar();respond({ok:true});}
     if(message.action==='state'){updateState(message.state);respond({ok:true});}
     if(message.action==='highlight'){highlightPassage(message);respond({ok:true});}
     if(message.action==='snapshot')respond(snapshot());
     if(message.action==='clear'){clearHighlight();respond({ok:true});}
-  });
+  };
+  chrome.runtime.onMessage.addListener(onMessage);
+  instance.dispose=()=>{hideToolbar();highlightStyle.remove();removeEventListener('scroll',reposition,true);removeEventListener('resize',reposition);removeEventListener('pagehide',pagehide);try{chrome.runtime.onMessage.removeListener(onMessage);}catch{}};
 })();

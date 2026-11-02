@@ -21,7 +21,7 @@ Paths above are relative to `extension/` except the last two rows.
 
 ## Architecture
 
-A toolbar click grants `activeTab` and injects the content script. It mounts a small toolbar in a shadow root. There is one active reading source at a time; activating another page hides the former toolbar. Another toolbar-icon click stops audio and removes the controls and highlights. Navigation and tab closure also clean up the audio context; same-document anchor links do not end a session.
+A toolbar click grants `activeTab` and injects the content script. It mounts a small toolbar in a shadow root. There is one active reading source at a time; activating another page hides the former toolbar. A versioned content-script instance disposes prior handlers and removes orphaned controls on reinjection. If a page rebuild removes the toolbar, the next activation restores it. Picker targets are resolved from current DOM elements rather than restricted to the initial article root; temporary cursor markers restore the original page styling. Another toolbar-icon click stops audio and removes the controls and highlights. Navigation and tab closure also clean up the audio context; same-document anchor links do not end a session.
 
 The page sends playback commands, but receives no keys. The worker validates the source tab and frame before routing commands. A private offscreen document creates and plays speech Blob URLs. It uses the documented `BLOBS` reason; the worker closes it when the reader is dismissed. It calls extension APIs through runtime messaging, because offscreen documents support only `chrome.runtime`.
 

@@ -2,6 +2,16 @@
 
 final result: passed
 
+## v0.3.4 — point and pick
+
+The user reported no pointer cursor and difficulty choosing text in a lesson. Eligible text now gets a temporary hand cursor and hover outline while the player is open. Targets are resolved against the current DOM, including lessons expanded after activation and articles outside the initial reading root. Native links, controls, modifiers, and drag selection keep their behavior. Closing the reader restores original cursor styling. Versioned instances dispose old handlers and replace orphaned controls; a toolbar removed by page rebuilding is restored on the next activation.
+
+Verification includes nested text with an existing cursor, restoring that cursor over a real link, an expanded lesson outside the original article, reading-position changes, orphaned controls, toolbar removal/restoration, and cleanup on close. An initial cursor check exposed a scroll event clearing the hover state after a newly opened lesson scrolled into view. The fix recomputes the target under the pointer on scroll/resize and clears the hover only when leaving the document, rather than every nested element. The complete browser suite then passed, including unchanged playback, provider fixtures, credential isolation, narrow layout, and no uncaught page errors.
+
+Native verification on the user's TryHackMe lesson confirmed that clicking the reported paragraph selected it and displayed the passage highlight. This uncovered low-contrast inherited text on the pale highlight in a dark theme. Passage highlight text now explicitly uses navy (#182846) on pale blue (#e6edff). The dark fixture screenshot `artifacts/picker-dark.png` (1030 × 733, deviceScaleFactor 1) and a subsequent native screenshot show readable selected text; automated checks assert its computed highlight foreground. Version 0.3.4 was reloaded in personal Chrome and the actual lesson refreshed, with Task 2 open and the paragraph selected. No paid speech request was made.
+
+Toolbar dimensions, fonts, controls, spacing, transparency, assets, and settings design are unchanged from v0.3.3. No new visual target was requested. The current feature is a functional correction with the dark-theme contrast finding resolved; no actionable P0/P1/P2 findings remain.
+
 ## v0.3.3 — rounded borders
 
 The user requested rounded borders. The current 240 × 48px toolbar now has fully rounded pill-shaped ends, while settings inputs, selects, bordered buttons, and notices use consistent 12px corners. Size, 50%-opaque background, typography, colors, copy, and playback behavior are preserved.

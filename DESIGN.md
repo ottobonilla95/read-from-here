@@ -28,7 +28,7 @@ The default strip has no title, source label, transcript, reading queue, passage
 
 The current passage is highlighted on the page. Native speech word events highlight the current sentence and word. Cloud voices highlight the passage, because the supported synthesis responses do not provide alignment. Do not simulate word timing.
 
-Direct paragraph/photo clicks move the reader while its toolbar is visible. Ordinary links, buttons, forms, modified clicks, and dragging text retain their normal behavior. Clicking the extension icon again dismisses the strip and stops playback.
+Readable paragraphs and photos show a hand cursor and blue hover outline while the toolbar is visible. Cursor markers are temporary and clear when leaving the page or closing the player. Scrolling recomputes the target under the pointer. Direct clicks move the reader, including sections expanded after activation and articles outside the initially detected root. Ordinary links, buttons, forms, modified clicks, and dragging text retain their normal behavior. Clicking the extension icon again dismisses the strip and stops playback.
 
 ## Settings
 

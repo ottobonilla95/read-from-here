@@ -57,16 +57,33 @@ try{
     await cdp.send('Extensions.triggerAction',{id,targetId:target.targetId});
   }
   const article=await context.newPage();await article.goto(base);
+  await article.evaluate(()=>{const old=document.createElement('rfh-reader');old.dataset.rfhUi='';old.textContent='Previous extension controls';document.documentElement.append(old);});
   await activate(article);
   const ui=article.locator('rfh-reader');
   await ui.getByRole('button',{name:'Play',exact:true}).waitFor();
   await until(async()=>!(await ui.getByRole('button',{name:'Play',exact:true}).isDisabled()),'Reader did not connect');
   assert.equal(await ui.getByRole('button').count(),4);
   assert.equal(await ui.getByRole('slider').count(),0);
+  assert.equal(await article.locator('rfh-reader').count(),1,'Old controls survived activation');
+  await article.evaluate(()=>document.querySelector('rfh-reader').remove());
+  await activate(article);await ui.getByRole('button',{name:'Play',exact:true}).waitFor();
+  assert.equal(await article.locator('rfh-reader').count(),1,'Detached controls were not restored');
   const snapshot=await worker.evaluate(async()=>{const tab=(await chrome.tabs.query({})).find(t=>t.url?.startsWith('http://127.0.0.1:'));return chrome.tabs.sendMessage(tab.id,{target:'content',action:'snapshot'});});
   assert.equal(snapshot.blocks.length,9);assert.ok(!JSON.stringify(snapshot).includes('must not be read'));
   const highlighted=()=>article.evaluate(()=>Array.from(CSS.highlights.get('read-from-here-passage')||[]).map(range=>range.toString()).join(''));
+  await article.locator('#cursor-word').hover();
+  assert.equal(await article.locator('#cursor-word').evaluate(el=>getComputedStyle(el).cursor),'pointer','Nested text did not show the picker hand');
+  await article.locator('#normal-link').hover();
+  assert.equal(await article.locator('#cursor-word').evaluate(el=>getComputedStyle(el).cursor),'help','Picker did not restore the page cursor');
+  assert.equal(await article.locator('#normal-link').getAttribute('data-rfh-cursor'),null,'Picker changed a real link');
+  await article.locator('#lesson-toggle').click();await article.locator('#new-lesson').hover();
+  assert.equal(await article.locator('#new-lesson').evaluate(el=>getComputedStyle(el).cursor),'pointer','Expanded lesson had no picker hand');
+  await article.locator('#new-lesson').click();await until(async()=>(await highlighted()).startsWith('A newly opened lesson'),'Expanded lesson outside initial root could not be picked');
   await article.locator('#second').click();await until(async()=>(await highlighted()).startsWith('Researchers'),'Direct paragraph jump failed');
+  await article.evaluate(()=>{document.body.style.background='#1e293b';document.body.style.color='#cbd5e1';});
+  assert.equal(await article.locator('#second').evaluate(el=>getComputedStyle(el,'::highlight(read-from-here-passage)').color),'rgb(24, 40, 70)','Highlight inherited low-contrast dark-theme text');
+  await article.locator('#second').hover();await article.screenshot({path:path.join(root,'artifacts/picker-dark.png')});
+  await article.evaluate(()=>{document.body.style.removeProperty('background');document.body.style.removeProperty('color');});
   await article.locator('#photo').click();await until(async()=>(await highlighted()).startsWith('A quiet place'),'Photo jump failed');
   await article.locator('#normal-link').click();assert.equal(new URL(article.url()).hash,'#normal-link');
   assert.match(await highlighted(),/^A quiet place/);
@@ -77,7 +94,7 @@ try{
   await article.mouse.move(bounds.x+5,bounds.y+10);await article.mouse.down();await article.mouse.move(bounds.x+200,bounds.y+10,{steps:10});await article.mouse.up();
   assert.ok(await article.evaluate(()=>!getSelection().isCollapsed));assert.match(await highlighted(),/^A quiet place/);
   await article.evaluate(()=>getSelection().removeAllRanges());
-  console.log('PASS four-control floating toolbar, extraction, direct paragraph/photo jumps, links/forms/text selection');
+  console.log('PASS four-control floating toolbar, extraction, pointer cursors, expanded lessons, direct paragraph/photo jumps, links/forms/text selection');
   await ui.getByRole('button',{name:'Faster',exact:true}).click();await until(async()=>(await ui.locator('#speed').textContent())==='1.25×','Speed did not update');
   assert.equal((await worker.evaluate(async()=>(await chrome.storage.local.get('settings')).settings)).speed,1.25);
   await ui.getByRole('button',{name:'Slower',exact:true}).click();
@@ -152,7 +169,10 @@ try{
   assert.equal(denied.key.key,undefined);assert.equal(denied.access,false);
   assert.ok(!(await article.content()).includes('test-gemini-key'));
   console.log('PASS preview, key removal/remember-device, provider voices, Gemini playback, and page credential isolation');
+  await article.locator('#cursor-word').hover();
   await activate(article);await ui.waitFor({state:'detached'});
+  assert.equal(await article.locator('[data-rfh-cursor]').count(),0,'Picker cursor markers survived closing');
+  assert.equal(await article.locator('#cursor-word').evaluate(el=>getComputedStyle(el).cursor),'help');
   assert.equal(await article.evaluate(()=>CSS.highlights.has('read-from-here-passage')),false);
   await until(async()=>!(await worker.evaluate(async()=>(await chrome.runtime.getContexts({contextTypes:['OFFSCREEN_DOCUMENT']})).length)),'Audio context survived closing toolbar');
   // A hostile page CSP cannot block the isolated audio engine or the toolbar icons.
