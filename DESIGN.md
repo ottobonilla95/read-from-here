@@ -4,7 +4,7 @@ The selected visual target is option 1 from the three mockups generated on 2 Nov
 
 ## Main controls
 
-A 240 × 48 CSS-pixel toolbar sits centered, 18 pixels above the bottom of the viewport. Its white background is 50% opaque with a 10-pixel backdrop blur; controls and text remain fully opaque. It has a 16-pixel corner radius and a soft navy shadow. A 32-pixel cobalt circle contains the play/pause icon. The speed group contains two 24-pixel circular buttons and a centered 14-pixel numeric speed. Reduced-transparency preferences use a solid white background. A thin divider separates the settings icon. There are exactly four buttons: play/pause, slower, faster, settings.
+A 240 × 48 CSS-pixel toolbar sits centered, 18 pixels above the bottom of the viewport. Its white background is 50% opaque with a 10-pixel backdrop blur; controls and text remain fully opaque. It has fully rounded pill-shaped ends and a soft navy shadow. A 32-pixel cobalt circle contains the play/pause icon. The speed group contains two 24-pixel circular buttons and a centered 14-pixel numeric speed. Reduced-transparency preferences use a solid white background. A thin divider separates the settings icon. There are exactly four buttons: play/pause, slower, faster, settings.
 
 At widths below 250 pixels, spacing and controls contract to keep the whole strip within the viewport. The toolbar does not alter the page's content layout. Its shadow root isolates control styles from the host page. Accessible names and focus rings are present without adding visible labels or instructions.
 
@@ -32,4 +32,4 @@ Direct paragraph/photo clicks move the reader while its toolbar is visible. Ordi
 
 ## Settings
 
-The settings icon opens Chrome’s native side panel with voice provider, API key, model, voice preview, and follow-scrolling controls. It reuses the existing form typography and cool paper palette. The panel uses the side chosen in Chrome settings. Closing settings preserves the main listening session. No settings fields appear in the everyday toolbar.
+The settings icon opens Chrome’s native side panel with voice provider, API key, model, voice preview, and follow-scrolling controls. It uses 12-pixel rounded fields and buttons with the existing form typography and cool paper palette. The panel uses the side chosen in Chrome settings. Closing settings preserves the main listening session. No settings fields appear in the everyday toolbar.

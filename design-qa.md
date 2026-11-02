@@ -2,6 +2,12 @@
 
 final result: passed
 
+## v0.3.3 — rounded borders
+
+The user requested rounded borders. The current 240 × 48px toolbar now has fully rounded pill-shaped ends, while settings inputs, selects, bordered buttons, and notices use consistent 12px corners. Size, 50%-opaque background, typography, colors, copy, and playback behavior are preserved.
+
+Opened the regenerated full-view and focused source/implementation comparisons plus the 360px-wide settings capture. No clipping, unwanted wrapping, icon blur, or actionable P0/P1/P2 differences. Current source and implementation dimensions and normalization remain those recorded below; changes from the original mockup follow the user's subsequent size and transparency requests. The complete browser suite passes with no uncaught page errors. Reloaded and verified version 0.3.3 in personal Chrome, with the player visible and settings sidebar open.
+
 ## v0.3.2 — sidebar settings and smaller controls
 
 The user requested settings in the side again, smaller buttons, and a more transparent container. Current toolbar: 240 × 48 CSS px, 32px play/pause, 24px speed buttons, 14px speed text, 50%-opaque white surface and 10px backdrop blur. All labels/icons remain fully opaque and all four controls remain visible at 280px viewport width. This user direction supersedes the original mockup's larger opaque container.
