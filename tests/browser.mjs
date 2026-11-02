@@ -25,7 +25,7 @@ try{
   context=await chromium.launchPersistentContext(path.join(temp,'profile'),{channel:'chromium',headless:true,args:[`--disable-extensions-except=${extension}`,`--load-extension=${extension}`,'--autoplay-policy=no-user-gesture-required','--enable-unsafe-extension-debugging'],viewport:{width:1030,height:733}});
   const errors=[];context.on('page',page=>page.on('pageerror',error=>errors.push(error.message)));
   const worker=context.serviceWorkers()[0]||await context.waitForEvent('serviceworker'),id=new URL(worker.url()).host;
-  await until(()=>worker.evaluate(()=>chrome.action.onClicked.hasListeners()),'Toolbar listener did not initialize');
+  await until(()=>worker.evaluate(async()=>chrome.action.onClicked.hasListeners()&&!(await chrome.sidePanel.getPanelBehavior()).openPanelOnActionClick),'Toolbar behavior did not initialize');
   const cdp=await context.browser().newBrowserCDPSession();
   const requests=[],sessions=new Map();let sequence=0;
   cdp.on('Target.receivedMessageFromTarget',event=>{
