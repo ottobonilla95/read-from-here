@@ -1,50 +1,39 @@
 # Install Read from here
 
-**Pick a paragraph. Press play. Keep learning.**
+**Click a paragraph. Press play. Keep learning.**
 
-Read from here is a Chrome extension for listening to web pages with free browser voices or your own OpenAI, ElevenLabs, or Gemini API key.
+## Install
 
-## Install from the release ZIP
+1. Download **Read-from-here.zip** from the [latest release](https://github.com/ottobonilla95/read-from-here/releases/latest).
+2. Unzip it into a permanent folder. Moving or deleting the folder can break the installation.
+3. Open `chrome://extensions` and enable **Developer mode**.
+4. Click **Load unpacked** and select the unzipped **Read-from-here** folder. It must contain `manifest.json` directly.
+5. Open Chrome's extensions menu and pin **Read from here**.
 
-1. Download **Read-from-here.zip** from the [latest GitHub release](https://github.com/ottobonilla95/read-from-here/releases/latest).
-2. Unzip it into a folder you plan to keep. Moving or deleting that folder later can break the installed extension.
-3. Open `chrome://extensions` in Chrome.
-4. Turn on **Developer mode** in the upper-right corner.
-5. Click **Load unpacked** and select the unzipped **Read-from-here** folder. It should contain `manifest.json` directly.
-6. Open Chrome's extensions menu (the puzzle piece) and pin **Read from here**.
-7. Open a normal article page and click the extension icon. The reader opens in the side panel.
+From a source checkout, select the repository's **extension/** folder instead. No build or npm installation is required to listen.
 
-## Install from the repository
+## Listen
 
-Clone the repository or download and unzip its source. Follow the same steps above, but select the repository's **extension** folder at step 5. No build or npm install is required to use the extension.
+Open an ordinary article and click the extension icon. A small toolbar appears at the bottom of the page. Click a paragraph, then press **Play**. Use the minus and plus buttons to adjust speed in 0.25× steps.
 
-## First listen
+Clicking another paragraph moves your place, continuing if playing and staying paused if paused. Clicking a photo moves to the next caption or passage. Words inside images are not read.
 
-With the side panel open, click a paragraph or image directly on the page. No picking button is needed. A subtle outline previews the passage under your pointer. A photo moves your place to the next caption or passage; this version does not read text inside images.
+The current passage is highlighted directly on the page. Browser voices that report word events also highlight the spoken word and sentence. Cloud voices highlight passages without word timing.
 
-Press **Play**. Pause, move between passages, or change the speed using the slider. Click a passage on the page or in the side panel to move your place. Playback continues from the new passage if already playing, and stays paused if paused. Earlier passages remain available with Previous. Keep the panel open while listening; closing it removes the page click behavior. Links, buttons, forms, and dragging to select text keep working normally.
+Click the extension icon again to close the toolbar and stop listening. Navigating away or closing the tab stops playback too.
 
-To read only part of the page, highlight text and choose **Use selected text**. You can also right-click a selection and choose **Read selected text**.
+## Voices and API keys
 
-## Add an AI voice
+The toolbar's settings icon opens a small voice-settings window. Browser voices work without a key. For OpenAI, ElevenLabs, or Gemini, choose the provider, paste your own key, select **Save key**, then choose a voice and model.
 
-Browser voices work immediately without a key. For another voice:
+Keys are kept for the browser session by default. **Remember on this device** saves a key locally; it is not encrypted or browser-synced. **Remove key** clears both locations. Cloud playback and previews use your provider account and can cost money.
 
-1. Open **Voice settings** with the sliders button.
-2. Choose OpenAI, ElevenLabs, or Gemini.
-3. Paste a key from your own provider account and select **Save key**.
-4. Choose a model and voice, then return to your page and press **Play**.
-
-The default keeps your key for this browser session. Check **Remember on this device** to save it locally. Saved keys are not encrypted and are never browser-synced. **Remove key** clears both locations.
-
-Cloud playback and voice previews use your provider account and may cost money. Text goes directly to the provider you choose. Do not put API keys in project files, screenshots, issues, or commits.
-
-## If a page does not load
-
-Click the extension icon on that page to grant access, then choose **Load page**. Try selecting just the text you want if article extraction includes the wrong material.
-
-Chrome internal pages, the Chrome Web Store, built-in PDF viewers, text inside pictures, canvas documents, and cross-origin frames are not supported. Open an HTML version when available.
+Close settings with **Done**; the floating toolbar and playback remain available.
 
 ## Updating
 
-Replace the installed extension's files with the new version, then open `chrome://extensions` and click its **Reload** button. Refresh an article tab before using the updated extension.
+Replace the installed extension's files with the new version. At `chrome://extensions`, click its **Reload** button, then refresh the article tab and click the extension icon. Upgrading from the side-panel version keeps saved voice settings and keys.
+
+## Supported pages
+
+Chrome 116 or later with readable HTML. Chrome settings, the Chrome Web Store, built-in PDF viewers, scanned text, words in pictures, canvas documents, and cross-origin frames are not supported. Open an HTML version when available.

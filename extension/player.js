@@ -1,8 +1,8 @@
 import {generateSpeech} from './providers.js';
 
 export class ReaderPlayer {
-  constructor({native, audio = new Audio(), settings, key, onChange = () => {}, onPassage = () => {}, synthesize = generateSpeech}) {
-    Object.assign(this, {native,audio,settings,key,onChange,onPassage,synthesize});
+  constructor({native, audio = new Audio(), settings, key, onChange = () => {}, onPassage = () => {}, onWord = () => {}, synthesize = generateSpeech}) {
+    Object.assign(this, {native,audio,settings,key,onChange,onPassage,onWord,synthesize});
     this.queue=[];this.index=0;this.phase='idle';this.want=false;this.token=0;this.cache=new Map();this.url=null;this.pending=false;this.nativePaused=false;
     this.audio.preservesPitch=true;
   }
@@ -24,7 +24,7 @@ export class ReaderPlayer {
     if(this.audio.getAttribute('src')){
       const token=this.token;
       this.state('playing');
-      try{await this.audio.play();}catch(error){if(token===this.token)this.fail(error);}
+      try{await this.audio.play();}catch(error){if(token===this.token){if(!this.want&&error.name==='AbortError')this.state('paused');else this.fail(error);}}
       return;
     }
     await this.run();
@@ -65,6 +65,7 @@ export class ReaderPlayer {
       try{
         this.native.speak(item.text,{voice:settings.voices.browser,rate:settings.speed,lang:settings.lang,onEvent:event=>{
           if(token!==this.token)return;
+          if(event.type==='word'&&Number.isInteger(event.charIndex))this.onWord(item,event);
           if(event.type==='end')this.advance(token);
           else if(event.type==='error')this.fail(new Error(event.errorMessage||'This browser voice could not play. Choose another voice.'));
           else if(event.type==='interrupted'||event.type==='cancelled'){this.want=false;this.nativePaused=false;this.state('ready');}
@@ -94,6 +95,7 @@ export class ReaderPlayer {
       if(this.want){this.state('playing');await this.audio.play();}else this.state('paused');
     } catch(error) {
       if(token!==this.token)return;
+      if(!this.want&&error.name==='AbortError'){this.state('paused');return;}
       this.pending=false;this.releaseAudio();this.fail(error);
     } finally {clearTimeout(timer);if(token===this.token)this.controller=null;}
   }

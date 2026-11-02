@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Read from here · Voice settings</title><link rel="stylesheet" href="settings.css"><script type="module" src="settings.js"></script></head><body><main>    <section id="settings" class="settings" aria-label="Voice settings">
+      <div class="section-heading"><h2>Voice settings</h2><button id="settings-close" class="text-button">Done</button></div>
+      <label for="provider">Voice provider</label>
+      <select id="provider"><option value="browser">Browser voices · free</option><option value="openai">OpenAI</option><option value="elevenlabs">ElevenLabs</option><option value="gemini">Gemini</option></select>
+      <p id="provider-hint" class="field-hint"></p>
+      <div id="cloud-fields" hidden>
+        <label for="api-key">Your API key</label>
+        <div class="key-row"><input id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste your provider API key"><button id="show-key" class="text-button" aria-label="Show API key">Show</button></div>
+        <label class="check-label"><input id="remember-key" type="checkbox">Remember on this device</label>
+        <p class="field-hint">Otherwise kept for this browser session. Saved keys are local and not encrypted. Never synced.</p>
+        <div class="key-actions"><button id="save-key" class="secondary-button">Save key</button><button id="delete-key" class="text-button">Remove key</button></div>
+        <p id="key-status" class="field-hint" role="status"></p>
+        <label for="model">Speech model</label><select id="model"></select>
+      </div>
+      <div class="section-heading voice-heading"><label for="voice">Voice</label><button id="refresh-voices" class="text-button">Refresh voices</button></div>
+      <select id="voice"></select>
+      <button id="preview-voice" class="secondary-button preview-button">Listen to this voice</button>
+      <p class="field-hint">Cloud voice previews use a short API request.</p>
+      <label class="check-label"><input id="follow" type="checkbox" checked>Follow the current passage on the page</label>
+    </section>
+<p id="notice" class="notice" role="status" hidden></p></main></body></html>

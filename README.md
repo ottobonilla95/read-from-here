@@ -1,84 +1,72 @@
 # Read from here
 
-**Your study material. Out loud. At your pace.**
+**Click a paragraph. Press play. Keep learning.**
 
-A lightweight Chrome extension that reads web pages aloud, starting where you choose. Click a paragraph or photo, pick a voice, and press play. The controls stay beside your article so you can listen and follow along.
+A small Chrome extension that reads the web aloud. One floating toolbar: **play/pause, slower, faster, and settings**. The text being read is highlighted on the page itself.
 
-Start with free browser voices. Bring your own OpenAI, ElevenLabs, or Gemini API key when you want another voice. No reader subscription or extension account required; cloud API usage may cost money.
+Use free browser voices, or bring your own OpenAI, ElevenLabs, or Gemini API key. No reader subscription or extension account. Cloud API usage may cost money.
 
 ## Get listening
 
-1. [Download the extension](https://github.com/ottobonilla95/read-from-here/releases/latest) and unzip it.
-2. Open `chrome://extensions` and turn on **Developer mode**.
-3. Click **Load unpacked** and select the unzipped **Read-from-here** folder—the one containing `manifest.json`.
-4. Pin **Read from here** from Chrome's extensions menu, then click its icon on an article.
-5. Click a paragraph or photo directly on the page, then press **Play**.
+1. [Download the latest release](https://github.com/ottobonilla95/read-from-here/releases/latest) and unzip it into a folder you will keep.
+2. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
+3. Select the unzipped **Read-from-here** folder containing `manifest.json`. From this repository, select **extension/** instead.
+4. Pin **Read from here** in Chrome's extensions menu.
+5. Open an article and click the extension icon. Click a paragraph on the page, then press **Play** on the floating toolbar.
 
-If you cloned this repository or downloaded its source, select the **extension** folder at step 3. No build step is needed. [Full installation guide](docs/INSTALL.md).
+Click the extension icon again to close the toolbar and stop listening. Navigating away or closing the source tab also stops playback. [Full installation guide](docs/INSTALL.md).
 
-<img src="docs/images/reader.png" alt="Read from here beside a study article, with playback controls, speed slider, and a list of passages." width="360">
+<img src="docs/images/reader.png" alt="A small floating toolbar below a study article, with pause, speed buttons, and voice settings. The spoken text is highlighted directly on the page." width="900">
 
-*Example page used for testing.*
+## Just the controls you need
 
-## A reader that starts where you want
+- **Play and pause** from the toolbar at the bottom of the page.
+- **Slower and faster** in steps of 0.25×, from 0.5× to 3×.
+- **Click any paragraph** to move your place. Playback continues if playing, and stays paused if paused. Clicking a photo moves to the next caption or passage; it does not read words inside the image.
+- **Follow the text on the page.** Browser voices that supply word events highlight the current word and sentence. Cloud voices highlight the current passage; they do not supply word timing in this version.
+- **Settings** holds voice, model, API key, voice preview, and automatic scrolling options. It opens in a separate small window, and can close while listening continues.
 
-- **Choose your place.** Click a paragraph to begin there. Click a photo to begin at the next caption or passage. No picking mode or extra button. While playing, a click continues from that passage; while paused, it moves your place without starting audio.
-- **Listen to a selection.** Highlight text and choose **Use selected text**, or right-click it and choose **Read selected text**.
-- **Keep your own pace.** Play, pause, skip between passages, and adjust speed from **0.5× to 3×**.
-- **Follow along.** The current passage is highlighted on the page. Turn off automatic following when you want to scroll freely.
-- **Try different voices.** Pick a voice and hear a short preview before returning to your article.
-
-Keep the side panel open while listening. Hover over a passage to preview your jump. Links, forms, and text selection keep their usual behavior. Closing the panel stops playback and removes the page click listener. Use **Load page** to switch to the current page; click the extension icon on a new site to grant access.
+Links, buttons, forms, and dragging to select text keep their usual behavior. The toolbar uses its own styles so the article's layout stays intact. There is no transcript, reading queue, or side panel.
 
 ## Pick a voice
 
-Open **Voice settings** using the sliders button.
+| Provider | What you need |
+| --- | --- |
+| Browser voices | Nothing extra. Uses your device's available voices. |
+| OpenAI | Your OpenAI API key. Try Marin or Cedar. |
+| ElevenLabs | Your ElevenLabs API key and a voice from your account. |
+| Gemini | Your Gemini API key and one of the preset voices. |
 
-| Provider | What you need | Good starting point |
-| --- | --- | --- |
-| Browser voices | Nothing extra | Try the voices already available on your device. No API key or API charge. |
-| OpenAI | Your OpenAI API key | Marin or Cedar for AI narration. |
-| ElevenLabs | Your ElevenLabs API key | Choose from the voices available in your account. |
-| Gemini | Your Gemini API key | Try one of the 30 preset voices. Account quotas and availability apply. |
+Open **Voice settings**, choose a provider, save your key if needed, and select a voice. Voice previews use your provider quota too. Changing the speed of generated audio reuses that audio. Browser voices restart the current passage when speed changes.
 
-For a cloud voice, choose the provider, paste your key, select **Save key**, and pick a model and voice. Voice previews also use your API quota. Changing the playback speed of generated audio does not generate it again. Browser voices restart the current passage when speed changes.
-
-[Read the provider comparison and sources](PROVIDERS.md). This project has not benchmarked which provider sounds most natural; try the same short passage with a few voices and choose the one you like.
+[Provider comparison and sources](PROVIDERS.md). Voice quality and live API access depend on your device and account; this project does not claim one provider is best.
 
 ## Your text and keys
 
-There is no backend operated by this extension. Your API key is sent directly to the provider you choose, and never to the article's website.
+There is no extension-operated server. Cloud passages go directly to your selected speech provider.
 
 - Keys stay in extension-only browser session storage by default.
-- **Remember on this device** saves a key in local extension storage. Saved keys are not encrypted and are never browser-synced.
+- **Remember on this device** saves a key locally. Saved keys are not encrypted or browser-synced.
 - **Remove key** clears that provider's key from both storage locations.
-- Cloud playback sends the passage being played directly to the selected provider. Its billing and data policies apply.
-- The extension holds the article and generated audio in memory. Up to 12 generated passages are cached for replay. Uncached passages can incur another API charge.
-- A paused request may finish generating audio, but the next passage is not generated until playback continues.
+- The page's toolbar never receives your API key. Settings and audio generation run in private extension contexts.
+- Article text and up to 12 generated audio passages are held in memory. Uncached passages can incur another API charge.
+- Pausing may let an existing request finish, but does not generate the next passage.
 
-Browser voices use the speech engines available on your device; some voices may require a network connection. The extension requests access to a page when you click its icon rather than permanent access to every website.
+Browser voices use the speech engines available on your device. Some require a network connection. Article access comes from clicking the extension icon, rather than permanent access to every website.
 
-## Before you try it
+## Boundaries
 
-This first version works with readable HTML articles and text selections in **Chrome 116 or later**. Other Chromium browsers have not been separately verified.
+Works with readable HTML in **Chrome 116 or later**. There is no Chrome Web Store listing yet. Other Chromium browsers have not been separately verified.
 
-- A photo is a starting-point marker. Text inside photos and scanned documents is not read.
-- Chrome settings pages, the Chrome Web Store, built-in PDF viewers, canvas documents, and cross-origin frames are not supported.
-- Unusual page layouts can confuse article extraction. Selecting the exact text is the fallback.
-- Highlighting follows passages rather than individual words. Cloud generation can leave a short gap between passages.
-- AI voices can mispronounce or deviate from the source. Check the original material when exact wording matters.
-
-There is no Chrome Web Store listing yet. This is an unpacked extension you install locally.
+Chrome internal pages, the Chrome Web Store, built-in PDF viewers, text in images, scanned documents, canvas documents, and cross-origin frames are not supported. Unusual layouts can affect text extraction. AI voices may mispronounce or change wording; check the source when precision matters. Cloud generation can leave a short gap between passages.
 
 ## Run or change the code
 
-The extension uses plain JavaScript, HTML, and CSS. You can load `extension/` directly in Chrome without installing development tools.
+The runtime is plain JavaScript, HTML, and CSS. Load **extension/** directly; there is no build step.
 
-For tests and packaging, use Node.js 22 or later:
+For development, use Node.js 22 or later:
 
 ```sh
-git clone git@github.com:ottobonilla95/read-from-here.git
-cd read-from-here
 npm ci
 npm test
 npx playwright install chromium
@@ -86,8 +74,6 @@ npm run test:browser
 npm run package
 ```
 
-The packaged extension is written to `artifacts/Read-from-here.zip`.
+The ZIP is written to `artifacts/Read-from-here.zip`. See [development notes](docs/DEVELOPMENT.md) for architecture and test coverage. Provider responses in integration checks are simulated; they do not establish live provider compatibility or voice quality.
 
-Ten core checks and the Chromium integration checks passed for the initial version. Cloud provider responses were simulated; live API compatibility and voice quality still need testing with your own account. See [the development guide](docs/DEVELOPMENT.md) for the code map and test details.
-
-The bundled Atkinson Hyperlegible font is distributed under the [SIL Open Font License](extension/assets/OFL.txt).
+Atkinson Hyperlegible is bundled under the [SIL Open Font License](extension/assets/OFL.txt). The toolbar uses [Tabler Icons](https://github.com/tabler/tabler-icons) under the [MIT license](extension/assets/tabler/LICENSE).

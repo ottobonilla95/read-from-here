@@ -8,120 +8,157 @@ const root=path.resolve(import.meta.dirname,'..');
 await mkdir(path.join(root,'artifacts'),{recursive:true});
 const temp=await mkdtemp(path.join(tmpdir(),'read-from-here-test-'));
 const extension=path.join(temp,'extension');await cp(path.join(root,'extension'),extension,{recursive:true});
-const server=http.createServer(async(_req,res)=>{res.setHeader('Content-Type','text/html');res.end(await readFile(path.join(root,'tests/article.html')));});
+const server=http.createServer(async(req,res)=>{
+  if(/^\/assets\/AtkinsonHyperlegible-(Regular|Bold)\.ttf$/.test(req.url)){res.setHeader('Content-Type','font/ttf');res.end(await readFile(path.join(root,'extension',req.url)));return;}
+  if(req.url.startsWith('/mockup')){res.setHeader('Content-Type','text/html');res.end(await readFile(path.join(root,'tests/mockup.html')));return;}
+  res.setHeader('Content-Type','text/html');
+  if(req.url.startsWith('/strict'))res.setHeader('Content-Security-Policy',"default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src 'none'; media-src 'none'; connect-src 'none'");
+  res.end(await readFile(path.join(root,'tests/article.html')));
+});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
-let context;
+const base=`http://127.0.0.1:${server.address().port}`;
 const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
-async function until(check,message){for(let i=0;i<80;i++){if(await check())return;await delay(75);}throw new Error(message);}
-function wav(){const size=24000*2*4,buffer=Buffer.alloc(44+size);buffer.write('RIFF');buffer.writeUInt32LE(size+36,4);buffer.write('WAVEfmt ',8);buffer.writeUInt32LE(16,16);buffer.writeUInt16LE(1,20);buffer.writeUInt16LE(1,22);buffer.writeUInt32LE(24000,24);buffer.writeUInt32LE(48000,28);buffer.writeUInt16LE(2,32);buffer.writeUInt16LE(16,34);buffer.write('data',36);buffer.writeUInt32LE(size,40);return buffer;}
+async function until(check,message){for(let i=0;i<100;i++){if(await check())return;await delay(75);}throw new Error(message);}
+function wav(){const size=24000*2*20,b=Buffer.alloc(44+size);b.write('RIFF');b.writeUInt32LE(size+36,4);b.write('WAVEfmt ',8);b.writeUInt32LE(16,16);b.writeUInt16LE(1,20);b.writeUInt16LE(1,22);b.writeUInt32LE(24000,24);b.writeUInt32LE(48000,28);b.writeUInt16LE(2,32);b.writeUInt16LE(16,34);b.write('data',36);b.writeUInt32LE(size,40);return b;}
+let context;
 try{
-  context=await chromium.launchPersistentContext(path.join(temp,'profile'),{channel:'chromium',headless:true,args:[`--disable-extensions-except=${extension}`,`--load-extension=${extension}`,'--autoplay-policy=no-user-gesture-required','--enable-unsafe-extension-debugging'],viewport:{width:390,height:1000}});
-  const worker=context.serviceWorkers()[0]||await context.waitForEvent('serviceworker');const extensionId=new URL(worker.url()).host;
-  const article=await context.newPage();await article.goto(`http://127.0.0.1:${server.address().port}/`);
-  const browserCdp=await context.browser().newBrowserCDPSession();
-  const targets=await browserCdp.send('Target.getTargets',{filter:[{type:'tab',exclude:false}]});
-  const tabTarget=targets.targetInfos.find(t=>t.url===article.url());
-  if(!tabTarget)throw new Error(JSON.stringify(targets));
-  await browserCdp.send('Extensions.triggerAction',{id:extensionId,targetId:tabTarget.targetId});
-  const tabId=await worker.evaluate(async()=>{const tabs=await chrome.tabs.query({});return tabs.find(t=>t.url?.startsWith('http://127.0.0.1:')).id;});
-  console.log('PASS toolbar activation with the shipped activeTab permissions');
-  const panel=await context.newPage();const errors=[];panel.on('pageerror',error=>errors.push(error.message));
-  await panel.goto(`chrome-extension://${extensionId}/panel.html`);
-  await panel.waitForFunction(()=>document.getElementById('voice').options.length>0);
-  await worker.evaluate(id=>chrome.tabs.update(id,{active:true}),tabId);
-  await panel.locator('#load-page').click();
-  await until(async()=>await panel.locator('#page-title').textContent()==='Why sleep helps us learn','Article did not load');
-  assert.equal(await panel.locator('.passage').count(),9);
-  const words=await panel.locator('#transcript').textContent();assert.ok(!words.includes('must not be read'));assert.equal((words.match(/short rest/g)||[]).length,1);
-  console.log('PASS article extraction, hidden/navigation filtering, and nested-block deduplication');
-  await panel.screenshot({path:path.join(root,'artifacts/panel-ready.png'),fullPage:true});
-  // Page clicks work immediately, with the whole article still available for previous/next.
-  assert.equal(await panel.locator('#pick-start').count(),0);
-  await article.locator('#second').hover();
-  await until(async()=>await article.locator('[data-rfh-ui]:visible').count()>0,'Hover outline missing');
-  await article.locator('#second').click();
-  await until(async()=>(await panel.locator('.passage[aria-current="true"]').textContent()).startsWith('Researchers'),'Direct paragraph click failed');
-  assert.equal(await panel.locator('.passage').count(),9);
-  assert.equal(await panel.locator('#playback-status').textContent(),'Ready to listen');
-  await article.locator('#photo').click();
-  await until(async()=>(await panel.locator('.passage[aria-current="true"]').textContent()).startsWith('A quiet place'),'Direct photo click failed');
-  await panel.locator('#previous').click();
-  assert.match(await panel.locator('.passage[aria-current="true"]').textContent(),/^Researchers/);
-  console.log('PASS direct paragraph/photo clicks, hover feedback, and preserved earlier passages');
-  // Links and interactive controls must retain their ordinary browser behavior.
-  await article.locator('#normal-link').click();
-  assert.equal(new URL(article.url()).hash,'#normal-link');
-  assert.match(await panel.locator('.passage[aria-current="true"]').textContent(),/^Researchers/);
-  await article.locator('#normal-button').click();
-  assert.equal(await article.locator('#normal-button').textContent(),'Clicked');
+  context=await chromium.launchPersistentContext(path.join(temp,'profile'),{channel:'chromium',headless:true,args:[`--disable-extensions-except=${extension}`,`--load-extension=${extension}`,'--autoplay-policy=no-user-gesture-required','--enable-unsafe-extension-debugging'],viewport:{width:1030,height:733}});
+  const errors=[];context.on('page',page=>page.on('pageerror',error=>errors.push(error.message)));
+  const worker=context.serviceWorkers()[0]||await context.waitForEvent('serviceworker'),id=new URL(worker.url()).host;
+  await until(()=>worker.evaluate(()=>chrome.action.onClicked.hasListeners()),'Toolbar listener did not initialize');
+  const cdp=await context.browser().newBrowserCDPSession();
+  const requests=[],sessions=new Map();let sequence=0;
+  cdp.on('Target.receivedMessageFromTarget',event=>{
+    const session=sessions.get(event.sessionId);if(!session)return;
+    const message=JSON.parse(event.message);
+    if(message.id){const pending=session.pending.get(message.id);if(pending){session.pending.delete(message.id);message.error?pending.reject(new Error(message.error.message)):pending.resolve(message.result);}return;}
+    if(message.method==='Fetch.requestPaused'){
+      const {requestId,request}=message.params;
+      const gemini=request.url.includes('generativelanguage');
+      if(request.url.includes('api.openai'))requests.push(JSON.parse(request.postData));
+      const body=gemini?Buffer.from(JSON.stringify({steps:[{type:'model_output',content:[{type:'audio',mime_type:'audio/wav',data:wav().toString('base64')}]}]})):wav();
+      void session.call('Fetch.fulfillRequest',{requestId,responseCode:200,responseHeaders:[{name:'Content-Type',value:gemini?'application/json':'audio/wav'}],body:body.toString('base64')});
+    }
+  });
+  async function mockEngine(){
+    const targets=await cdp.send('Target.getTargets');
+    const target=targets.targetInfos.find(target=>target.url===`chrome-extension://${id}/engine.html`);assert.ok(target,'Audio target missing');
+    const {sessionId}=await cdp.send('Target.attachToTarget',{targetId:target.targetId,flatten:false});
+    const session={pending:new Map(),call(method,params={}){const messageId=++sequence;return new Promise((resolve,reject)=>{this.pending.set(messageId,{resolve,reject});cdp.send('Target.sendMessageToTarget',{sessionId,message:JSON.stringify({id:messageId,method,params})}).catch(reject);});}};
+    sessions.set(sessionId,session);
+    // Offscreen targets are not covered by Playwright's page routing. Intercept their
+    // network requests at the target itself before any speech can be requested.
+    await session.call('Fetch.enable',{patterns:[{urlPattern:'https://api.openai.com/*'},{urlPattern:'https://api.elevenlabs.io/*'},{urlPattern:'https://generativelanguage.googleapis.com/*'}]});
+  }
+  async function activate(page){
+    const targets=await cdp.send('Target.getTargets',{filter:[{type:'tab',exclude:false}]});
+    const target=targets.targetInfos.find(t=>t.url===page.url());assert.ok(target);
+    await cdp.send('Extensions.triggerAction',{id,targetId:target.targetId});
+  }
+  const article=await context.newPage();await article.goto(base);
+  await activate(article);
+  const ui=article.locator('rfh-reader');
+  await ui.getByRole('button',{name:'Play',exact:true}).waitFor();
+  await until(async()=>!(await ui.getByRole('button',{name:'Play',exact:true}).isDisabled()),'Reader did not connect');
+  assert.equal(await ui.getByRole('button').count(),4);
+  assert.equal(await ui.getByRole('slider').count(),0);
+  const snapshot=await worker.evaluate(async()=>{const tab=(await chrome.tabs.query({})).find(t=>t.url?.startsWith('http://127.0.0.1:'));return chrome.tabs.sendMessage(tab.id,{target:'content',action:'snapshot'});});
+  assert.equal(snapshot.blocks.length,9);assert.ok(!JSON.stringify(snapshot).includes('must not be read'));
+  const highlighted=()=>article.evaluate(()=>Array.from(CSS.highlights.get('read-from-here-passage')||[]).map(range=>range.toString()).join(''));
+  await article.locator('#second').click();await until(async()=>(await highlighted()).startsWith('Researchers'),'Direct paragraph jump failed');
+  await article.locator('#photo').click();await until(async()=>(await highlighted()).startsWith('A quiet place'),'Photo jump failed');
+  await article.locator('#normal-link').click();assert.equal(new URL(article.url()).hash,'#normal-link');
+  assert.match(await highlighted(),/^A quiet place/);
+  await article.locator('#normal-button').click();assert.equal(await article.locator('#normal-button').textContent(),'Clicked');
   await article.locator('#normal-input').fill('Study notes');
-  assert.match(await panel.locator('.passage[aria-current="true"]').textContent(),/^Researchers/);
-  await article.locator('#first').dispatchEvent('click',{button:0,ctrlKey:true});
-  assert.match(await panel.locator('.passage[aria-current="true"]').textContent(),/^Researchers/);
-  console.log('PASS links, buttons, input fields, and modified clicks keep normal behavior');
-  await article.evaluate(()=>{const range=document.createRange();range.selectNodeContents(document.getElementById('second'));getSelection().removeAllRanges();getSelection().addRange(range);});
-  await panel.locator('#read-selection').click();await until(async()=>await panel.locator('.passage').count()===1,'Selection did not load');
-  assert.match(await panel.locator('.passage').textContent(),/^Researchers/);
-  await article.locator('#first').scrollIntoViewIfNeeded();
-  const firstBounds=await article.locator('#first').boundingBox();
-  await article.mouse.move(firstBounds.x+5,firstBounds.y+10);await article.mouse.down();
-  await article.mouse.move(firstBounds.x+Math.min(200,firstBounds.width-10),firstBounds.y+10,{steps:10});await article.mouse.up();
-  assert.ok(await article.evaluate(()=>!getSelection().isCollapsed),'The drag should select text');
-  assert.equal(await panel.locator('.passage').count(),1,'Dragging a selection should not seek');
+  await article.locator('#first').dispatchEvent('click',{button:0,ctrlKey:true});assert.match(await highlighted(),/^A quiet place/);
+  await article.locator('#first').scrollIntoViewIfNeeded();const bounds=await article.locator('#first').boundingBox();
+  await article.mouse.move(bounds.x+5,bounds.y+10);await article.mouse.down();await article.mouse.move(bounds.x+200,bounds.y+10,{steps:10});await article.mouse.up();
+  assert.ok(await article.evaluate(()=>!getSelection().isCollapsed));assert.match(await highlighted(),/^A quiet place/);
   await article.evaluate(()=>getSelection().removeAllRanges());
-  console.log('PASS selected-text reading and selection without accidental seeking');
-  // No real account keys or paid requests are used by this test.
-  const requests=[];await context.route('https://api.openai.com/**',async route=>{requests.push(JSON.parse(route.request().postData()));await delay(250);await route.fulfill({status:200,contentType:'audio/wav',body:wav()});});
-  await panel.locator('#settings-toggle').click();await panel.locator('#provider').selectOption('openai');
-  await panel.waitForFunction(()=>!document.getElementById('voice').disabled);
-  await panel.locator('#api-key').fill('test-fixture-key');await panel.locator('#save-key').click();
-  await until(async()=>(await panel.locator('#key-status').textContent()).includes('session'),'Key not saved');
+  console.log('PASS four-control floating toolbar, extraction, direct paragraph/photo jumps, links/forms/text selection');
+  await ui.getByRole('button',{name:'Faster',exact:true}).click();await until(async()=>(await ui.locator('#speed').textContent())==='1.25×','Speed did not update');
+  assert.equal((await worker.evaluate(async()=>(await chrome.storage.local.get('settings')).settings)).speed,1.25);
+  await ui.getByRole('button',{name:'Slower',exact:true}).click();
+  const openingSettings=context.waitForEvent('page');
+  await ui.getByRole('button',{name:'Voice settings'}).click();
+  const settings=await openingSettings;
+  const prefs=settings||context.pages().find(p=>p.url().includes('settings.html'));assert.ok(prefs);
+  await prefs.waitForLoadState();
+  await mockEngine();
+  await prefs.locator('#provider').selectOption('openai');await prefs.locator('#voice').selectOption('marin');
+  await prefs.locator('#api-key').fill('test-fixture-key');await prefs.locator('#save-key').click();
+  await until(async()=>(await prefs.locator('#key-status').textContent()).includes('session'),'Key not saved');
   const stored=await worker.evaluate(async()=>({local:await chrome.storage.local.get('keys'),session:await chrome.storage.session.get('keys')}));
   assert.equal(stored.local.keys?.openai,undefined);assert.equal(stored.session.keys.openai,'test-fixture-key');
-  await panel.locator('#settings-close').click();await panel.locator('#play').click();
-  await until(async()=>await panel.locator('#playback-status').textContent()==='Listening','Cloud audio did not start');
-  await panel.locator('#play').click();assert.equal(await panel.locator('#playback-status').textContent(),'Paused');
-  await panel.locator('#speed').fill('1.75');await panel.locator('#play').click();await delay(200);assert.equal(requests.length,1);
-  assert.match(requests[0].input,/^Researchers/);await panel.locator('#play').click();
-  console.log('PASS cloud audio, pause/resume, speed without regeneration, session-only key storage');
-  await panel.locator('#settings-toggle').click();await panel.locator('#preview-voice').click();
-  await until(async()=>requests.length===2,'Preview did not generate');
-  await panel.locator('#preview-voice').click();assert.match(await panel.locator('.passage').textContent(),/^Researchers/);
-  await panel.locator('#remember-key').check();await panel.locator('#save-key').click();
-  await until(async()=>(await panel.locator('#key-status').textContent()).includes('device'),'Remembered key not saved');
+  await article.locator('#second').click();await ui.getByRole('button',{name:'Play',exact:true}).click();
+  await until(async()=>(await ui.locator('#status').textContent())==='Listening','Cloud playback did not start');
+  assert.match(requests[0].input,/^Researchers/);
+  await ui.getByRole('button',{name:'Pause',exact:true}).click();await until(async()=>(await ui.locator('#status').textContent())==='Paused','Pause state did not arrive');
+  await ui.getByRole('button',{name:'Faster',exact:true}).click();await ui.getByRole('button',{name:'Play',exact:true}).click();
+  await delay(200);assert.equal(requests.length,1);
+  await article.locator('#first').click();await until(async()=>requests.length===2,'Playing jump did not generate');
+  await until(async()=>(await ui.locator('#status').textContent())==='Listening','Playing jump did not continue');
+  assert.match(requests[1].input,/^Learning/);
+  await ui.getByRole('button',{name:'Pause',exact:true}).click();await until(async()=>(await ui.locator('#status').textContent())==='Paused','Pause state did not arrive');await article.locator('#photo').click();
+  await until(async()=>(await highlighted()).startsWith('A quiet place'),'Paused jump failed');await delay(250);
+  assert.equal(await ui.locator('#status').textContent(),'Paused');assert.equal(requests.length,2);
+  console.log('PASS isolated cloud audio, pause/resume, cached speed changes, playing/paused jumps, and session keys');
+  await prefs.locator('#preview-voice').click();await until(async()=>requests.length===3,'Voice preview did not generate');
+  await prefs.locator('#preview-voice').click();assert.match(await highlighted(),/^A quiet place/);
+  await prefs.locator('#remember-key').check();await prefs.locator('#save-key').click();
+  await until(async()=>(await prefs.locator('#key-status').textContent()).includes('device'),'Device key not saved');
   const remembered=await worker.evaluate(async()=>({local:await chrome.storage.local.get('keys'),session:await chrome.storage.session.get('keys')}));
   assert.equal(remembered.local.keys.openai,'test-fixture-key');assert.equal(remembered.session.keys.openai,undefined);
-  await panel.locator('#delete-key').click();await until(async()=>await panel.locator('#api-key').inputValue()==='','Key not removed');
-  console.log('PASS voice preview preserves position and key removal / remember-device behavior');
+  await prefs.locator('#delete-key').click();await until(async()=>(await prefs.locator('#api-key').inputValue())==='','Key not removed');
   await context.route('https://api.elevenlabs.io/v2/voices**',route=>route.fulfill({json:{voices:[{voice_id:'test-voice',name:'Study voice',labels:{accent:'British'}}],has_more:false}}));
-  await panel.locator('#provider').selectOption('elevenlabs');await panel.locator('#api-key').fill('test-eleven-key');await panel.locator('#save-key').click();
-  await until(async()=>(await panel.locator('#voice').textContent()).includes('Study voice'),'ElevenLabs voices did not load');
-  await panel.locator('#provider').selectOption('gemini');await until(async()=>await panel.locator('#voice option').count()===30,'Gemini voices did not load');
-  await panel.locator('#api-key').fill('test-gemini-key');await panel.locator('#save-key').click();
+  await prefs.locator('#provider').selectOption('elevenlabs');await prefs.locator('#api-key').fill('test-eleven-key');await prefs.locator('#save-key').click();
+  await until(async()=>(await prefs.locator('#voice').textContent()).includes('Study voice'),'ElevenLabs voices missing');
+  await prefs.locator('#provider').selectOption('gemini');await until(async()=>await prefs.locator('#voice option').count()===30,'Gemini voices missing');
+  await prefs.locator('#api-key').fill('test-gemini-key');await prefs.locator('#save-key').click();
   await context.route('https://generativelanguage.googleapis.com/**',route=>route.fulfill({json:{steps:[{type:'model_output',content:[{type:'audio',mime_type:'audio/wav',data:wav().toString('base64')}]}]}}));
-  await panel.locator('#settings-close').click();await panel.locator('#play').click();
-  await until(async()=>await panel.locator('#playback-status').textContent()==='Listening','Gemini WAV did not play');await panel.locator('#play').click();
-  console.log('PASS ElevenLabs voice loading and Gemini audio decoding / playback');
-  await panel.locator('#settings-toggle').click();await panel.screenshot({path:path.join(root,'artifacts/panel-settings.png'),fullPage:true});
-  await panel.setViewportSize({width:280,height:900});await panel.screenshot({path:path.join(root,'artifacts/panel-narrow.png'),fullPage:true});
-  assert.ok(await panel.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Narrow panel overflows');
-  await panel.setViewportSize({width:390,height:1000});await panel.locator('#settings-close').click();
-  await panel.locator('#load-page').click();await until(async()=>await panel.locator('.passage').count()===9,'Reload article failed');
-  await panel.screenshot({path:path.join(root,'artifacts/panel-ready.png'),fullPage:true});
-  // A click during playback keeps playing; a paused jump makes no generation request.
-  await panel.locator('#play').click();
-  await until(async()=>await panel.locator('#playback-status').textContent()==='Listening','Playback did not start');
-  await article.locator('#second').click();
-  await until(async()=>await panel.locator('#playback-status').textContent()==='Listening' && (await panel.locator('.passage[aria-current="true"]').textContent()).startsWith('Researchers'),'A playing jump did not resume at the clicked paragraph');
-  await panel.locator('#play').click();
-  await article.locator('#photo').click();
-  await until(async()=>await panel.locator('#playback-status').textContent()==='Paused' && (await panel.locator('.passage[aria-current="true"]').textContent()).startsWith('A quiet place'),'A paused jump did not stay paused');
-  console.log('PASS direct page jumps preserve playing and paused states');
-  await panel.close();
-  await until(async()=>await article.locator('[data-rfh-ui]').count()===0,'Page listeners/highlights survived panel close');
-  await article.locator('#first').hover();await article.locator('#first').click();
-  assert.equal(await article.locator('[data-rfh-ui]').count(),0);
-  console.log('PASS closing the reader removes direct-click behavior and highlights');
-  assert.deepEqual(errors,[]);console.log('PASS 280px layout and no uncaught browser errors');
-  await writeFile(path.join(root,'artifacts/browser-test.txt'),'All extension browser checks passed. Provider responses mocked. Shipped activeTab permissions; toolbar activation tested. No real API calls.\n');
+  await ui.getByRole('button',{name:'Play',exact:true}).click();await until(async()=>(await ui.locator('#status').textContent())==='Listening','Gemini did not play');
+  await ui.getByRole('button',{name:'Pause',exact:true}).click();
+  await prefs.screenshot({path:path.join(root,'artifacts/settings.png'),fullPage:true});
+  // Only internal extension pages can retrieve credentials or control the audio engine directly.
+  const denied=await worker.evaluate(async()=>{
+    const tab=(await chrome.tabs.query({})).find(t=>t.url?.startsWith('http://127.0.0.1:'));
+    const [result]=await chrome.scripting.executeScript({target:{tabId:tab.id},func:async()=>{
+      const key=await chrome.runtime.sendMessage({target:'background',action:'get-key',provider:'gemini'});
+      let access;try{await chrome.storage.session.get('keys');access=true;}catch{access=false;}
+      return {key,access};
+    }});return result.result;
+  });
+  assert.equal(denied.key.key,undefined);assert.equal(denied.access,false);
+  assert.ok(!(await article.content()).includes('test-gemini-key'));
+  console.log('PASS preview, key removal/remember-device, provider voices, Gemini playback, and page credential isolation');
+  await activate(article);await ui.waitFor({state:'detached'});
+  assert.equal(await article.evaluate(()=>CSS.highlights.has('read-from-here-passage')),false);
+  await until(async()=>!(await worker.evaluate(async()=>(await chrome.runtime.getContexts({contextTypes:['OFFSCREEN_DOCUMENT']})).length)),'Audio context survived closing toolbar');
+  // A hostile page CSP cannot block the isolated audio engine or the toolbar icons.
+  await article.goto(base+'/strict');await activate(article);await until(async()=>await worker.evaluate(async()=>(await chrome.runtime.getContexts({contextTypes:['OFFSCREEN_DOCUMENT']})).length>0),'Strict audio context missing');await mockEngine();await ui.getByRole('button',{name:'Play',exact:true}).waitFor();
+  await article.locator('#second').click();await ui.getByRole('button',{name:'Play',exact:true}).click();
+  await until(async()=>(await ui.locator('#status').textContent())==='Listening','Strict CSP blocked audio');
+  await ui.getByRole('button',{name:'Pause',exact:true}).click();
+  assert.ok(await ui.locator('#play img').evaluate(img=>img.complete&&img.naturalWidth>0),'Strict CSP blocked toolbar icons');
+  await article.setViewportSize({width:280,height:650});
+  const toolbarBounds=await ui.locator('.toolbar').boundingBox();assert.ok(toolbarBounds.x>=0&&toolbarBounds.x+toolbarBounds.width<=280);
+  await article.screenshot({path:path.join(root,'artifacts/toolbar-narrow.png')});
+  await article.reload();await ui.waitFor({state:'detached'});
+  await until(async()=>!(await worker.evaluate(async()=>(await chrome.runtime.getContexts({contextTypes:['OFFSCREEN_DOCUMENT']})).length)),'Navigation did not stop audio');
+  console.log('PASS toolbar toggle cleanup, strict CSP audio/icons, 280px viewport, and navigation cleanup');
+  // Use native word callbacks for a deterministic visual reference; no device voice
+  // or network dependency is needed to check sentence/word Range mapping.
+  await worker.evaluate(()=>{chrome.tts.speak=(text,options,done)=>{const index=text.indexOf('helps turn');options.onEvent({type:'word',charIndex:index>=0?index:0,length:5});done?.();};});
+  await prefs.locator('#provider').selectOption('browser');
+  await until(()=>worker.evaluate(async()=>(await chrome.storage.local.get('settings')).settings.provider==='browser'),'Native provider not saved');
+  await article.setViewportSize({width:1030,height:733});await article.goto(base+'/mockup');await activate(article);await until(async()=>await worker.evaluate(async()=>(await chrome.runtime.getContexts({contextTypes:['OFFSCREEN_DOCUMENT']})).length>0),'Mockup audio context missing');await mockEngine();
+  await article.locator('#current').click();await ui.getByRole('button',{name:'Play',exact:true}).click();
+  await until(async()=>(await ui.locator('#status').textContent())==='Listening','Mockup playback missing');
+  await until(async()=>await article.evaluate(()=>CSS.highlights.has('read-from-here-word')),'Native word highlight missing');
+  assert.equal(await article.evaluate(()=>Array.from(CSS.highlights.get('read-from-here-word'))[0].toString()),'helps');
+  await article.mouse.move(0,0);await article.screenshot({path:path.join(root,'artifacts/toolbar-desktop.png')});
+  await ui.getByRole('button',{name:'Pause',exact:true}).click();
+  assert.deepEqual(errors,[]);console.log('PASS desktop capture and no uncaught page errors');
+  await writeFile(path.join(root,'artifacts/browser-test.txt'),'All floating extension checks passed. Shipped activeTab permissions. Provider responses mocked. No real API calls.\n');
 }finally{await context?.close();await new Promise(resolve=>server.close(resolve));await rm(temp,{recursive:true,force:true});}

@@ -1,27 +1,41 @@
 # Working on Read from here
 
-The runtime has no framework, bundler, external scripts, or backend. Everything Chrome needs is in `extension/`.
+The runtime has no framework, bundler, remote scripts, or application server. Chrome loads everything from `extension/`.
 
 ## Code map
 
 | File | Responsibility |
 | --- | --- |
-| `extension/manifest.json` | Manifest V3 permissions, provider hosts, toolbar action, and side panel |
-| `extension/background.js` | Toolbar and context-menu activation, content injection, trusted storage access |
-| `extension/content.js` | Article extraction, direct paragraph/photo clicks, selection, passage highlighting |
-| `extension/panel.html` / `panel.css` | Reader controls and settings |
-| `extension/panel.js` | Panel events, provider settings, key storage, page connection, voice previews |
-| `extension/player.js` | Playback, pause/resume, cancellation, passage transitions, memory cache |
-| `extension/providers.js` | Direct cloud speech requests and ElevenLabs voice listing |
-| `extension/core.js` | Provider presets, settings, text splitting, and queue creation |
-| `tests/` | Core tests, Chromium integration runner, and example study article |
-| `scripts/package.mjs` | Creates an installable ZIP without development dependencies |
+| `background.js` | Activation, source-tab lifecycle, trusted storage, native speech, settings window, and message routing |
+| `content.js` | Shadow DOM floating toolbar, semantic extraction, direct clicks, and CSS text highlighting |
+| `engine.html` / `engine.js` | Private offscreen audio context, reading queue, state, previews, and native-word routing |
+| `settings.html` / `settings.js` / `settings.css` | Provider, model, voice, preview, and API-key controls |
+| `player.js` | Playback, pause/resume, cancellation, transitions, word events, and generated-audio caching |
+| `providers.js` | Direct provider requests and ElevenLabs voice listing |
+| `core.js` | Provider presets, settings normalization, text splitting, and queue creation |
+| `assets/tabler/` | Vendored MIT-licensed Tabler control icons |
+| `tests/` | Core tests, Chromium integration runner, study and visual-reference fixtures |
+| `scripts/package.mjs` | Builds an installable ZIP without dependencies |
 
-`PRODUCT.md`, `DESIGN.md`, and `.impeccable/` record the product and design decisions. `PROVIDERS.md` records the provider research and primary sources.
+Paths above are relative to `extension/` except the last two rows.
 
-## Set up
+## Architecture
 
-Use Node.js 22 or later, npm, and Chrome. Packaging also uses the `zip` command, included on macOS and commonly available on Linux.
+A toolbar click grants `activeTab` and injects the content script. It mounts a small toolbar in a shadow root. There is one active reading source at a time; activating another page hides the former toolbar. Another toolbar-icon click stops audio and removes the controls and highlights. Navigation and tab closure also clean up the audio context; same-document anchor links do not end a session.
+
+The page sends playback commands, but receives no keys. The worker validates the source tab and frame before routing commands. A private offscreen document creates and plays speech Blob URLs. It uses the documented `BLOBS` reason; the worker closes it when the reader is dismissed. It calls extension APIs through runtime messaging, because offscreen documents support only `chrome.runtime`.
+
+API-key retrieval and native-speech commands are limited to the internal audio document. Direct engine commands are limited to the service worker, excluding tab/document senders. The settings window is a private extension page, with session/local storage limited to trusted extension contexts. No extension HTML is web-accessible. Only the toolbar font and icon files are exposed as page assets.
+
+The old `sidePanel` and `contextMenus` permissions are removed; `offscreen` replaces the panel-based audio context. Provider host permissions remain limited to OpenAI, ElevenLabs, and Google. No permanent article-host permission is requested.
+
+The page uses CSS Custom Highlights for the current passage. Native word events narrow the highlight to the current sentence and word. Cloud providers here do not return alignment, so their highlights remain at passage level; there is no simulated word timing. An overlay is a fallback when CSS Highlights are unavailable.
+
+Chrome documentation: [offscreen API and Blob reason](https://developer.chrome.com/docs/extensions/reference/api/offscreen).
+
+## Develop
+
+Use Node.js 22 or later and npm:
 
 ```sh
 npm ci
@@ -31,31 +45,16 @@ npm run test:browser
 npm run package
 ```
 
-Load `extension/` as an unpacked extension in Chrome. After changing runtime files, click **Reload** at `chrome://extensions` and refresh the article tab.
+After changing runtime files, reload the extension at `chrome://extensions`, then refresh the article.
 
-## What the checks cover
+## Verification
 
-The core tests check text splitting and Unicode, page-anchor preservation, provider request formats, missing-key behavior, quota errors, voice pagination, pause during generation, cancellation before paid requests, stale responses after a jump, replay caching, and browser voice controls.
+Core tests cover Unicode-safe splitting, anchors, provider request formats, missing keys, quota handling, voice pagination, cancellation, stale generation, caching, speed, and native speech events.
 
-The Chromium checks load a temporary copy of the unchanged extension into a disposable browser profile. They trigger the toolbar action with Chrome DevTools Protocol, exercising the shipped `activeTab` grant. They verify:
+The Chromium suite loads a temporary copy of the unchanged extension and uses the toolbar action with the shipped `activeTab` grant. It checks the four visible toolbar controls, extraction, direct paragraph/photo jumps, links/forms/selection, speed persistence, cloud pause/resume, playing/paused jumps, previews, key storage/removal, provider voices, page credential isolation, cleanup, strict page CSP, narrow viewports, and uncaught errors.
 
-- Article extraction, hidden/navigation filtering, and nested-block deduplication.
-- Direct paragraph/photo clicks with hover feedback and preserved earlier passages.
-- Normal links, buttons, form inputs, modified clicks, and dragging to select text.
-- Jumps preserving playing/paused state and listener/highlight cleanup when the panel closes.
-- Selected-text reading.
-- Cloud audio playback, pause/resume, and speed changes without regeneration.
-- Session-only and device-local key storage, plus key removal.
-- Voice preview preserving the article position.
-- ElevenLabs voice loading and Gemini WAV decoding/playback.
-- A 280-pixel panel layout without horizontal overflow or uncaught page errors.
-
-Provider responses use fixtures. Tests do not require real API keys or make paid API calls. They do not establish live model availability, account access, provider latency, or voice quality. Browser voice output also depends on the operating system and installed voices.
-
-The panel connects to its source tab through a `reader-page` port. The content script installs direct-click/hover listeners while that port is open and removes them on disconnect. No additional host permissions are needed. Clicks report a complete article snapshot and starting block, so previous passages remain available.
+Offscreen documents are separate Chromium targets, so the test intercepts their speech requests with CDP Fetch before playback. Settings-page voice requests are intercepted through page routing. Provider fixtures do not establish live compatibility, account access, latency, or voice quality. Native word-event rendering can be exercised with a deterministic speech fixture; actual voice support varies by device.
 
 ## Packaging
 
-`npm run package` copies only runtime files, the installation guide, and provider notes into `artifacts/Read-from-here.zip`. It rejects a manifest containing localhost or all-site host access. Generated files and installed dependencies are ignored by Git.
-
-Keep keys in the extension settings. Never add real credentials to tests or source files. The only website hosts in the shipped manifest are the three supported speech providers; article access comes from `activeTab`.
+`npm run package` copies runtime files, installation instructions, and provider notes to `artifacts/Read-from-here.zip`. It rejects localhost/all-site host permissions. Generated files and dependencies are ignored by Git. Never put real keys in source, tests, logs, or screenshots.

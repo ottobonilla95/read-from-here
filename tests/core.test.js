@@ -93,3 +93,20 @@ test('native pause, resume, and speed changes keep the passage index',async()=>{
   await player.play();player.pause();await player.play();assert.equal(paused,1);assert.equal(resumed,1);assert.equal(spoke,1);
   settings.speed=1.5;player.setSpeed(1.5);assert.equal(spoke,2);assert.equal(player.index,0);player.stop();
 });
+
+test('native word events are forwarded only for the current passage',async()=>{
+  const {player,settings,native}=setup();settings.provider='browser';const words=[],callbacks=[];
+  player.onWord=(item,event)=>words.push({text:item.text,index:event.charIndex});native.speak=(_text,options)=>callbacks.push(options.onEvent);
+  await player.play();callbacks[0]({type:'word',charIndex:6,length:7});
+  await player.seek(1,true);callbacks[0]({type:'word',charIndex:0,length:5});callbacks[1]({type:'word',charIndex:0,length:6});
+  assert.deepEqual(words,[{text:'First passage.',index:6},{text:'Second passage.',index:0}]);player.stop();
+});
+
+test('pausing before audio play settles keeps paused audio available for resume',async()=>{
+  const {player,audio}=setup(async()=>new Blob(['audio']));
+  let rejectPlay;audio.play=()=>new Promise((_resolve,reject)=>{rejectPlay=reject;});
+  const starting=player.play();while(!rejectPlay)await new Promise(resolve=>setImmediate(resolve));
+  player.pause();rejectPlay(new DOMException('Play interrupted by pause','AbortError'));await starting;
+  assert.equal(player.phase,'paused');assert.ok(audio.src);
+  audio.play=async()=>{audio.plays++;};await player.play();assert.equal(player.phase,'playing');assert.equal(audio.plays,1);player.stop();
+});
