@@ -1,25 +1,23 @@
-# Read from here — Floating strip
+# Readily — Floating strip
 
-The selected visual target is option 1 from the three mockups generated on 2 November 2026: a white floating strip at the bottom of the article. Its primary surface is the web page, not a side-panel transcript.
+The selected visual target is the Graphite reference supplied by the user, saved as `docs/images/graphite-reference.png`. It uses charcoal surfaces, warm ivory accents, a flat compact player, and regular system typography. The player uses 70% background opacity and a lower position following the user’s latest refinement. Settings use the native Chrome sidebar; the web page remains the reading surface.
 
 ## Main controls
 
-A 240 × 48 CSS-pixel toolbar sits centered, 18 pixels above the bottom of the viewport. Its white background is 50% opaque with a 10-pixel backdrop blur; controls and text remain fully opaque. It has fully rounded pill-shaped ends and a soft navy shadow. A 32-pixel cobalt circle contains the play/pause icon. The speed group contains two 24-pixel circular buttons and a centered 14-pixel numeric speed. Reduced-transparency preferences use a solid white background. A separate thin divider precedes the settings button. Secondary controls use a faint circular navy hover tint; the divider stays outside the hover surface. There are exactly four buttons: play/pause, slower, faster, settings.
+A 232 × 48 CSS-pixel toolbar sits centered, 8 pixels above the bottom of the viewport. Its charcoal background uses `rgb(32 33 35 / 70%)` with 10-pixel backdrop blur; buttons and text remain opaque. Controls have no text shadows or speed-value badge. Its 12-pixel corners frame a compact strip with 6-pixel padding and 6-pixel gaps. A 36-pixel warm ivory button contains the play/pause icon. Slower, faster, and settings use 32-pixel targets. The 15-pixel medium-weight tabular speed value sits directly on the charcoal surface. Below a 250-pixel viewport the toolbar contracts to a 44-pixel height. There are exactly four buttons: play/pause, slower, faster, settings.
 
 At widths below 250 pixels, spacing and controls contract to keep the whole strip within the viewport. The toolbar does not alter the page's content layout. Its shadow root isolates control styles from the host page. Accessible names and focus rings are present without adding visible labels or instructions.
 
 ## Color and type
 
-- Cobalt: `#2455da`, with `#1944b5` hover.
-- Navy: `#182846`.
-- White surface: `#ffffff`.
-- Quiet control surface: `#f1f3f7`.
-- Divider: `#dce3ef`.
-- Passage highlight: `#e6edff`.
-- Current word: cobalt background, white foreground.
-- Toolbar type: locally bundled Atkinson Hyperlegible, 14-pixel tabular speed value.
-- Icons: the official MIT-licensed Tabler player-play, player-pause, minus, plus, and adjustments-horizontal assets.
-
+- Settings and player charcoal: `#202123`.
+- Form surface: `#2d2e30`.
+- Warm ivory primary action and focus: `#f1eee7`, with `#ffffff` hover.
+- Foreground: `#f5f3ee`; supporting text: `#b9b7b1`.
+- Subtle dividers: `#414244`; tab baseline: `#62615d`. Fields use filled surfaces with transparent borders.
+- Passage highlight remains pale blue; current word remains cobalt with white foreground.
+- System UI typography supplies regular and medium weights; headings and the preview action use semibold.
+- Icons use the bundled MIT-licensed Tabler assets.
 The article keeps its own typography, colors, and layout. Highlight ranges change text paint, without wrapping or replacing the author's DOM.
 
 ## Reading states
@@ -32,4 +30,8 @@ Readable paragraphs and photos show a hand cursor and blue hover outline while t
 
 ## Settings
 
-The settings icon opens Chrome’s native side panel with voice provider, API key, model, voice preview, and follow-scrolling controls. It uses 12-pixel rounded fields and buttons with the existing form typography and cool paper palette. The panel uses the side chosen in Chrome settings. Closing settings preserves the main listening session. No settings fields appear in the everyday toolbar.
+Chrome’s native sidebar is fully opaque dark mode. A Readily header and Done action precede Voice and Connection tabs. Tabs support arrow keys, Home, End, focus rings, and panel semantics. Provider remains available in either tab.
+
+Voice holds the regular-weight voice selector, preview, refresh, cloud speech model, and follow-scrolling preference. Voice and provider fields share the same compact typography. The footer reports whether the chosen provider needs or has an API key and opens Connection with Add key or Manage key. Connection holds the masked key field, Show/Hide, storage preference, Save key, Remove key, and the provider’s data/cost explanation. Browser voices need no key. Closing settings preserves the listening session.
+
+The type scale remains consistent at wide panel widths; the content is capped at 440 pixels. At 280 pixels, controls fit without horizontal scrolling. Empty status text occupies no space. Voice preview has a real play/pause icon and pressed state; browser voices hide the cloud-preview quota hint.

@@ -3,9 +3,9 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {spawnSync} from 'node:child_process';
 const root=path.resolve(import.meta.dirname,'..');
-const temp=await mkdtemp(path.join(tmpdir(),'read-from-here-package-'));
-const name='Read-from-here';
-const output=path.join(root,'artifacts','Read-from-here.zip');
+const temp=await mkdtemp(path.join(tmpdir(),'readily-package-'));
+const name='Readily';
+const output=path.join(root,'artifacts','Readily.zip');
 try{
   await mkdir(path.dirname(output),{recursive:true});
   await cp(path.join(root,'extension'),path.join(temp,name),{recursive:true});
@@ -16,6 +16,6 @@ try{
   await rm(output,{force:true});
   const zipped=spawnSync('zip',['-q','-r',output,name],{cwd:temp,encoding:'utf8'});
   if(zipped.status!==0)throw new Error(zipped.stderr||'zip command failed.');
-  await writeFile(path.join(root,'artifacts','INSTALL.txt'),'Unzip Read-from-here.zip. Open chrome://extensions, turn on Developer mode, choose Load unpacked, and select the unzipped Read-from-here folder. Pin the extension and click it on an article.\n');
+  await writeFile(path.join(root,'artifacts','INSTALL.txt'),'Unzip Readily.zip. Open chrome://extensions, turn on Developer mode, choose Load unpacked, and select the unzipped Readily folder. Pin the extension and click it on an article.\n');
   console.log(output);
 }finally{await rm(temp,{recursive:true,force:true});}

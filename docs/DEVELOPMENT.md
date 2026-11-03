@@ -1,4 +1,4 @@
-# Working on Read from here
+# Working on Readily
 
 The runtime has no framework, bundler, remote scripts, or application server. Chrome loads everything from `extension/`.
 
@@ -59,4 +59,4 @@ Offscreen documents are separate Chromium targets, so the test intercepts their 
 
 ## Packaging
 
-`npm run package` copies runtime files, installation instructions, and provider notes to `artifacts/Read-from-here.zip`. It rejects localhost/all-site host permissions. Generated files and dependencies are ignored by Git. Never put real keys in source, tests, logs, or screenshots.
+`npm run package` copies runtime files, installation instructions, and provider notes to `artifacts/Readily.zip`. It rejects localhost/all-site host permissions. Generated files and dependencies are ignored by Git. Never put real keys in source, tests, logs, or screenshots.

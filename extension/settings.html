@@ -1,21 +1,56 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Read from here · Voice settings</title><link rel="stylesheet" href="settings.css"><script type="module" src="settings.js"></script></head><body><main>    <section id="settings" class="settings" aria-label="Voice settings">
-      <div class="section-heading"><h2>Voice settings</h2><button id="settings-close" class="text-button">Done</button></div>
-      <label for="provider">Voice provider</label>
-      <select id="provider"><option value="browser">Browser voices · free</option><option value="openai">OpenAI</option><option value="elevenlabs">ElevenLabs</option><option value="gemini">Gemini</option></select>
-      <p id="provider-hint" class="field-hint"></p>
-      <div id="cloud-fields" hidden>
-        <label for="api-key">Your API key</label>
-        <div class="key-row"><input id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste your provider API key"><button id="show-key" class="text-button" aria-label="Show API key">Show</button></div>
-        <label class="check-label"><input id="remember-key" type="checkbox">Remember on this device</label>
-        <p class="field-hint">Otherwise kept for this browser session. Saved keys are local and not encrypted. Never synced.</p>
-        <div class="key-actions"><button id="save-key" class="secondary-button">Save key</button><button id="delete-key" class="text-button">Remove key</button></div>
-        <p id="key-status" class="field-hint" role="status"></p>
-        <label for="model">Speech model</label><select id="model"></select>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Readily · Voice settings</title>
+  <link rel="stylesheet" href="settings.css">
+  <script type="module" src="settings.js"></script>
+</head>
+<body>
+  <main>
+    <section id="settings" class="settings" aria-labelledby="settings-title">
+      <header class="panel-header"><span class="brand">Readily</span><button id="settings-close" class="text-button done">Done</button></header>
+      <h1 id="settings-title">Voice settings</h1>
+      <div class="tabs" role="tablist" aria-label="Voice settings sections">
+        <button id="voice-tab" role="tab" aria-selected="true" aria-controls="voice-panel" tabindex="0">Voice</button>
+        <button id="connection-tab" role="tab" aria-selected="false" aria-controls="connection-panel" tabindex="-1">Connection</button>
       </div>
-      <div class="section-heading voice-heading"><label for="voice">Voice</label><button id="refresh-voices" class="text-button">Refresh voices</button></div>
-      <select id="voice"></select>
-      <button id="preview-voice" class="secondary-button preview-button">Listen to this voice</button>
-      <p class="field-hint">Cloud voice previews use a short API request.</p>
-      <label class="check-label"><input id="follow" type="checkbox" checked>Follow the current passage on the page</label>
+      <div class="field provider-field">
+        <label for="provider">Voice provider</label>
+        <select id="provider"><option value="browser">Browser voices · free</option><option value="openai">OpenAI</option><option value="elevenlabs">ElevenLabs</option><option value="gemini">Gemini</option></select>
+      </div>
+      <div id="voice-panel" role="tabpanel" aria-labelledby="voice-tab">
+        <div class="field voice-field">
+          <label for="voice" class="sr-only">Voice</label>
+          <select id="voice"></select>
+          <button id="preview-voice" class="preview-button" aria-pressed="false"><img src="assets/tabler/player-play.svg" width="20" height="20" alt="" aria-hidden="true"><span id="preview-label">Listen to this voice</span></button>
+          <p id="preview-hint" class="field-hint">Cloud voice previews use a short API request.</p>
+          <button id="refresh-voices" class="text-button refresh">Refresh voices</button>
+        </div>
+        <div id="cloud-fields" class="model-field" hidden><label for="model">Speech model</label><select id="model"></select></div>
+        <div class="reading-preference">
+          <label class="check-label"><input id="follow" type="checkbox" checked><span>Follow the current passage</span></label>
+          <p class="follow-hint field-hint">Keep the text in view as you listen.</p>
+        </div>
+        <div class="connection-summary">
+          <div class="summary-row"><span id="connection-status">No API key needed</span><button id="manage-key" class="text-button" hidden>Add key</button></div>
+          <p id="billing-hint" class="field-hint"></p>
+        </div>
+      </div>
+      <div id="connection-panel" role="tabpanel" aria-labelledby="connection-tab" hidden>
+        <p id="provider-hint" class="field-hint provider-description"></p>
+        <div id="cloud-key-fields" hidden>
+          <label for="api-key">Your API key</label>
+          <div class="key-row"><input id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste your provider API key" aria-describedby="key-storage-hint key-status"><button id="show-key" class="text-button" aria-label="Show API key" aria-pressed="false">Show</button></div>
+          <label class="check-label remember"><input id="remember-key" type="checkbox"><span>Remember on this device</span></label>
+          <p id="key-storage-hint" class="field-hint">Otherwise kept for this browser session. Saved keys are local and not encrypted. Never synced.</p>
+          <div class="key-actions"><button id="save-key" class="primary-button">Save key</button><button id="delete-key" class="text-button">Remove key</button></div>
+          <p id="key-status" class="field-hint key-status" role="status"></p>
+        </div>
+      </div>
     </section>
-<p id="notice" class="notice" role="status" hidden></p></main></body></html>
+    <p id="notice" class="notice" role="status" hidden></p>
+  </main>
+</body>
+</html>

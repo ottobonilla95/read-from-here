@@ -45,7 +45,7 @@ async function activate(tab){
   }catch(error){
     console.error('Reader activation failed:',error);
     await chrome.action.setBadgeText({tabId:tab.id,text:'!'}).catch(()=>{});
-    await chrome.action.setTitle({tabId:tab.id,title:'Open a normal web article to use Read from here. Chrome settings, store pages, and PDF viewers are not supported.'}).catch(()=>{});
+    await chrome.action.setTitle({tabId:tab.id,title:'Open a normal web article to use Readily. Chrome settings, store pages, and PDF viewers are not supported.'}).catch(()=>{});
   }
 }
 chrome.action.onClicked.addListener(tab=>{void activate(tab);});

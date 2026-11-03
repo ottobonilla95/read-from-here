@@ -1,6 +1,6 @@
 {
-  "name": "read-from-here",
-  "version": "0.3.5",
+  "name": "readily",
+  "version": "0.3.11",
   "private": true,
   "type": "module",
   "scripts": {
@@ -14,11 +14,11 @@
   "description": "Listen to web pages from the paragraph you choose, with free browser voices or your own AI voice API key.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ottobonilla95/read-from-here.git"
+    "url": "git+https://github.com/ottobonilla95/readily.git"
   },
-  "homepage": "https://github.com/ottobonilla95/read-from-here#readme",
+  "homepage": "https://github.com/ottobonilla95/readily#readme",
   "bugs": {
-    "url": "https://github.com/ottobonilla95/read-from-here/issues"
+    "url": "https://github.com/ottobonilla95/readily/issues"
   },
   "keywords": [
     "chrome-extension",

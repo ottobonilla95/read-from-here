@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Read from here",
-  "version": "0.3.5",
+  "name": "Readily",
+  "version": "0.3.11",
   "description": "Click any paragraph and listen. A simple floating player with speed controls and your choice of voice.",
   "minimum_chrome_version": "116",
   "permissions": [
@@ -22,7 +22,7 @@
     "type": "module"
   },
   "action": {
-    "default_title": "Read from here",
+    "default_title": "Readily",
     "default_icon": {
       "16": "assets/icon16.png",
       "48": "assets/icon48.png",

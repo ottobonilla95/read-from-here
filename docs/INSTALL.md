@@ -1,14 +1,14 @@
-# Install Read from here
+# Install Readily
 
 **Click a paragraph. Press play. Keep learning.**
 
 ## Install
 
-1. Download **Read-from-here.zip** from the [latest release](https://github.com/ottobonilla95/read-from-here/releases/latest).
+1. Download **Readily.zip** from the [latest release](https://github.com/ottobonilla95/readily/releases/latest).
 2. Unzip it into a permanent folder. Moving or deleting the folder can break the installation.
 3. Open `chrome://extensions` and enable **Developer mode**.
-4. Click **Load unpacked** and select the unzipped **Read-from-here** folder. It must contain `manifest.json` directly.
-5. Open Chrome's extensions menu and pin **Read from here**.
+4. Click **Load unpacked** and select the unzipped **Readily** folder. It must contain `manifest.json` directly.
+5. Open Chrome's extensions menu and pin **Readily**.
 
 From a source checkout, select the repository's **extension/** folder instead. No build or npm installation is required to listen.
 
@@ -24,7 +24,7 @@ Click the extension icon again to close the toolbar and stop listening. Navigati
 
 ## Voices and API keys
 
-The toolbar's settings icon opens voice settings in Chrome’s sidebar. Browser voices work without a key. For OpenAI, ElevenLabs, or Gemini, choose the provider, paste your own key, select **Save key**, then choose a voice and model.
+The toolbar's settings icon opens voice settings in Chrome’s sidebar. Browser voices work without a key. For OpenAI, ElevenLabs, or Gemini, choose the provider, open **Connection**, paste your own key, and select **Save key**. Return to **Voice** to choose a voice and model.
 
 Keys are kept for the browser session by default. **Remember on this device** saves a key locally; it is not encrypted or browser-synced. **Remove key** clears both locations. Cloud playback and previews use your provider account and can cost money.
 

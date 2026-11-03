@@ -1,4 +1,4 @@
-# Read from here
+# Readily
 
 **Click a paragraph. Press play. Keep learning.**
 
@@ -8,10 +8,10 @@ Use free browser voices, or bring your own OpenAI, ElevenLabs, or Gemini API key
 
 ## Get listening
 
-1. [Download the latest release](https://github.com/ottobonilla95/read-from-here/releases/latest) and unzip it into a folder you will keep.
+1. [Download the latest release](https://github.com/ottobonilla95/readily/releases/latest) and unzip it into a folder you will keep.
 2. Open `chrome://extensions`, enable **Developer mode**, and choose **Load unpacked**.
-3. Select the unzipped **Read-from-here** folder containing `manifest.json`. From this repository, select **extension/** instead.
-4. Pin **Read from here** in Chrome's extensions menu.
+3. Select the unzipped **Readily** folder containing `manifest.json`. From this repository, select **extension/** instead.
+4. Pin **Readily** in Chrome's extensions menu.
 5. Open an article and click the extension icon. Click a paragraph on the page, then press **Play** on the floating toolbar.
 
 Click the extension icon again to close the toolbar and stop listening. Navigating away or closing the source tab also stops playback. [Full installation guide](docs/INSTALL.md).
@@ -37,7 +37,7 @@ Links, buttons, forms, and dragging to select text keep their usual behavior. Th
 | ElevenLabs | Your ElevenLabs API key and a voice from your account. |
 | Gemini | Your Gemini API key and one of the preset voices. |
 
-Open **Voice settings**, choose a provider, save your key if needed, and select a voice. Voice previews use your provider quota too. Changing the speed of generated audio reuses that audio. Browser voices restart the current passage when speed changes.
+Open **Voice settings** and choose a provider. If needed, use **Connection** to save your API key, then return to **Voice** to select a voice and model. Voice previews use your provider quota too. Changing the speed of generated audio reuses that audio. Browser voices restart the current passage when speed changes.
 
 [Provider comparison and sources](PROVIDERS.md). Voice quality and live API access depend on your device and account; this project does not claim one provider is best.
 
@@ -74,6 +74,6 @@ npm run test:browser
 npm run package
 ```
 
-The ZIP is written to `artifacts/Read-from-here.zip`. See [development notes](docs/DEVELOPMENT.md) for architecture and test coverage. Provider responses in integration checks are simulated; they do not establish live provider compatibility or voice quality.
+The ZIP is written to `artifacts/Readily.zip`. See [development notes](docs/DEVELOPMENT.md) for architecture and test coverage. Provider responses in integration checks are simulated; they do not establish live provider compatibility or voice quality.
 
 Atkinson Hyperlegible is bundled under the [SIL Open Font License](extension/assets/OFL.txt). The toolbar uses [Tabler Icons](https://github.com/tabler/tabler-icons) under the [MIT license](extension/assets/tabler/LICENSE).

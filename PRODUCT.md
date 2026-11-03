@@ -1,4 +1,4 @@
-# Read from here
+# Readily
 
 <!-- impeccable:product-schema 1 -->
 

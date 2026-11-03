@@ -6,7 +6,36 @@ const send=(action,extra={})=>chrome.runtime.sendMessage({target:'background',ac
 function notice(message,error=false){$('notice').hidden=!message;$('notice').textContent=message;$('notice').classList.toggle('error',error);}
 async function saveSettings(){await chrome.storage.local.set({settings});}
 async function getKey(provider=settings.provider){const [local,session]=await Promise.all([chrome.storage.local.get('keys'),chrome.storage.session.get('keys')]);return session.keys?.[provider]||local.keys?.[provider]||'';}
-function finishPreview(){if(previewActive){previewActive=false;void send('stop-preview');$('preview-voice').textContent='Listen to this voice';}}
+function selectTab(name,focus=false){
+  for(const section of ['voice','connection']){
+    const selected=section===name,tab=$(`${section}-tab`);
+    tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;
+    $(`${section}-panel`).hidden=!selected;
+  }
+  if(focus)$(`${name}-tab`).focus();
+}
+for(const name of ['voice','connection']){
+  $(`${name}-tab`).addEventListener('click',()=>selectTab(name));
+  $(`${name}-tab`).addEventListener('keydown',event=>{
+    if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;
+    event.preventDefault();selectTab(event.key==='Home'?'voice':event.key==='End'?'connection':name==='voice'?'connection':'voice',true);
+  });
+}
+$('manage-key').addEventListener('click',()=>{selectTab('connection');$('api-key').focus();});
+function sizeVoice(){ $('voice').classList.toggle('long-voice',($('voice').selectedOptions[0]?.textContent.length||0)>20); }
+async function updateConnection(){
+  const provider=settings.provider,key=await getKey(provider);
+  if(provider!==settings.provider)return;
+  $('connection-status').textContent=provider==='browser'?'No API key needed':key?'API key saved':'API key not added';
+  $('manage-key').hidden=provider==='browser';$('manage-key').textContent=key?'Manage key':'Add key';
+}
+function setPreview(active){
+  previewActive=active;
+  $('preview-label').textContent=active?'Stop voice preview':'Listen to this voice';
+  $('preview-voice').setAttribute('aria-pressed',String(active));
+  $('preview-voice').querySelector('img').src=`assets/tabler/player-${active?'pause':'play'}.svg`;
+}
+function finishPreview(){if(previewActive){setPreview(false);void send('stop-preview');}}
 function populate(select,options,selected){select.replaceChildren(...options.map(item=>{const option=document.createElement('option');option.value=item.id;option.textContent=item.name;return option;}));if(options.some(item=>item.id===selected))select.value=selected;}
 async function refreshVoices(){
   const version=++voiceVersion,provider=settings.provider;
@@ -24,35 +53,38 @@ async function refreshVoices(){
     else if(!list.some(v=>v.id===settings.voices[provider])){settings.voices[provider]=list[0].id;await saveSettings();}
     $('preview-voice').disabled=!list.length;
   }catch(error){if(version===voiceVersion && error.name!=='AbortError'){voiceList=[];populate($('voice'),[{id:'',name:'Could not load voices'}]);notice(error.message,true);}}
-  finally{if(version===voiceVersion){$('refresh-voices').disabled=false;$('voice').disabled=!voiceList.length;}}
+  finally{if(version===voiceVersion){$('refresh-voices').disabled=false;$('voice').disabled=!voiceList.length;sizeVoice();}}
 }
 async function renderProvider(){
   const provider=settings.provider;
+  $('preview-hint').hidden=provider==='browser';
   $('provider').value=provider;$('provider-hint').textContent=PROVIDERS[provider].hint;$('cloud-fields').hidden=provider==='browser';
+  $('cloud-key-fields').hidden=provider==='browser';
+  $('billing-hint').textContent={browser:'Some browser voices may need a network connection.',openai:'API usage is billed to your account.',elevenlabs:'API usage uses your account credits.',gemini:'Free-tier quotas and paid usage depend on your account.'}[provider];
   populate($('model'),PROVIDERS[provider].models.map(([id,name])=>({id,name})),settings.models[provider]);
   if(provider!=='browser' && !settings.models[provider])settings.models[provider]=$('model').value;
   const local=await chrome.storage.local.get('keys');
   if(provider!==settings.provider)return;
-  $('remember-key').checked=Boolean(local.keys?.[provider]);$('api-key').value=await getKey(provider);$('api-key').type='password';$('show-key').textContent='Show';$('show-key').setAttribute('aria-label','Show API key');$('key-status').textContent='';
-  await refreshVoices();await saveSettings();
+  $('remember-key').checked=Boolean(local.keys?.[provider]);$('api-key').value=await getKey(provider);$('api-key').type='password';$('show-key').textContent='Show';$('show-key').setAttribute('aria-label','Show API key');$('show-key').setAttribute('aria-pressed','false');$('key-status').textContent='';
+  await updateConnection();await refreshVoices();await saveSettings();
 }
 $('provider').addEventListener('change',async()=>{finishPreview();settings.provider=$('provider').value;notice('');await renderProvider();});
-$('voice').addEventListener('change',async()=>{finishPreview();settings.voices[settings.provider]=$('voice').value;await saveSettings();});
+$('voice').addEventListener('change',async()=>{finishPreview();sizeVoice();settings.voices[settings.provider]=$('voice').value;await saveSettings();});
 $('model').addEventListener('change',async()=>{finishPreview();settings.models[settings.provider]=$('model').value;await saveSettings();});
 $('follow').addEventListener('change',async()=>{settings.follow=$('follow').checked;await saveSettings();});
 $('refresh-voices').addEventListener('click',()=>{notice('');void refreshVoices();});
-$('show-key').addEventListener('click',()=>{const show=$('api-key').type==='password';$('api-key').type=show?'text':'password';$('show-key').textContent=show?'Hide':'Show';$('show-key').setAttribute('aria-label',show?'Hide API key':'Show API key');});
+$('show-key').addEventListener('click',()=>{const show=$('api-key').type==='password';$('api-key').type=show?'text':'password';$('show-key').textContent=show?'Hide':'Show';$('show-key').setAttribute('aria-label',show?'Hide API key':'Show API key');$('show-key').setAttribute('aria-pressed',String(show));});
 $('save-key').addEventListener('click',async()=>{
   const provider=settings.provider,key=$('api-key').value.trim();if(!key){$('key-status').textContent='Paste an API key first.';return;}
   finishPreview();
   for(const area of ['local','session']){const result=await chrome.storage[area].get('keys');const keys={...result.keys};delete keys[provider];if((area==='local')===$('remember-key').checked)keys[provider]=key;await chrome.storage[area].set({keys});}
   $('key-status').textContent=$('remember-key').checked?'Key saved on this device.':'Key saved for this browser session.';
-  notice('');await refreshVoices();
+  notice('');await updateConnection();await refreshVoices();
 });
 $('delete-key').addEventListener('click',async()=>{
   finishPreview();const provider=settings.provider;
   for(const area of ['local','session']){const result=await chrome.storage[area].get('keys');const keys={...result.keys};delete keys[provider];await chrome.storage[area].set({keys});}
-  $('api-key').value='';$('key-status').textContent='Key removed.';await refreshVoices();
+  $('api-key').value='';$('key-status').textContent='Key removed.';await updateConnection();await refreshVoices();
 });
 
 $('settings-close').addEventListener('click',async()=>{
@@ -63,8 +95,8 @@ $('settings-close').addEventListener('click',async()=>{
     else {await chrome.sidePanel.setOptions({enabled:false});await chrome.sidePanel.setOptions({enabled:true});}
   }catch(error){notice(error.message,true);}
 });
-$('preview-voice').addEventListener('click',async()=>{if(!voiceList.length)return;if(previewActive){finishPreview();return;}previewActive=true;$('preview-voice').textContent='Stop voice preview';notice('');const result=await send('preview');if(result?.error){finishPreview();notice(result.error,true);}});
-chrome.runtime.onMessage.addListener(message=>{if(message.target!=='settings')return;if(message.action==='preview-state'&&(message.phase==='ended'||message.phase==='error')){previewActive=false;$('preview-voice').textContent='Listen to this voice';if(message.error)notice(message.error,true);}if(message.action==='speed-changed')settings.speed=message.speed;});
+$('preview-voice').addEventListener('click',async()=>{if(!voiceList.length)return;if(previewActive){finishPreview();return;}setPreview(true);notice('');const result=await send('preview');if(result?.error){finishPreview();notice(result.error,true);}});
+chrome.runtime.onMessage.addListener(message=>{if(message.target!=='settings')return;if(message.action==='preview-state'&&(message.phase==='ended'||message.phase==='error')){setPreview(false);if(message.error)notice(message.error,true);}if(message.action==='speed-changed')settings.speed=message.speed;});
 addEventListener('pagehide',()=>{void send('stop-preview');});
 async function init(){settings=safeSettings((await chrome.storage.local.get('settings')).settings);$('follow').checked=settings.follow;await renderProvider();}
 init().catch(error=>notice(error.message,true));
